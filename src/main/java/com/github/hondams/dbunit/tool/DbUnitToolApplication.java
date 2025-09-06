@@ -7,11 +7,13 @@ import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import picocli.CommandLine;
 import picocli.CommandLine.IFactory;
 
 @SpringBootApplication
 @RequiredArgsConstructor
+@Profile("!test")
 public class DbUnitToolApplication implements CommandLineRunner, ExitCodeGenerator {
 
     private final IFactory factory;
