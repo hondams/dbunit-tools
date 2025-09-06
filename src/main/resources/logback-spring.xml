@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="LOG_FILE"
+        value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
+    <!-- コンソールへのログ出力を停止する
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    -->
+    <!-- 起動のたびに、ログを最初から出力するようにするため、標準のアベンダーは利用しない
+	<include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
+    -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${FILE_LOG_THRESHOLD}</level>
+        </filter>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>${FILE_LOG_CHARSET}</charset>
+        </encoder>
+        <file>${LOG_FILE}</file>
+        <append>false</append>
+    </appender>
+    <root level="INFO">
+        <!-- コンソールへのログ出力を停止する
+            <appender-ref ref="CONSOLE"/>
+    -->
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
