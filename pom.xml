@@ -15,6 +15,9 @@
     <url/>
     <properties>
         <java.version>11</java.version>
+        <picocli.version>4.7.7</picocli.version>
+        <dbunit.version>2.8.0</dbunit.version>
+        <commons-exec.version>1.5.0</commons-exec.version>
     </properties>
     <dependencies>
         <dependency>
@@ -29,7 +32,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-json</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>${picocli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli-spring-boot-starter</artifactId>
+            <version>${picocli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-exec</artifactId>
+            <version>${commons-exec.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -44,7 +61,7 @@
         <dependency>
             <groupId>org.dbunit</groupId>
             <artifactId>dbunit</artifactId>
-            <version>2.8.0</version>
+            <version>${dbunit.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
