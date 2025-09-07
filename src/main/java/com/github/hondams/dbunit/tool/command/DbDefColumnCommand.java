@@ -1,10 +1,8 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.model.CatalogNode;
-import com.github.hondams.dbunit.tool.model.ColumnDefinition;
 import com.github.hondams.dbunit.tool.model.ColumnNode;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
-import com.github.hondams.dbunit.tool.model.DatabaseNodeBuilder;
 import com.github.hondams.dbunit.tool.model.SchemaNode;
 import com.github.hondams.dbunit.tool.model.TableNode;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
@@ -26,7 +24,7 @@ import picocli.CommandLine.Parameters;
 public class DbDefColumnCommand implements Callable<Integer> {
 
     @Parameters(index = "0", description = "table", arity = "1")
-    private String table;
+    String table;
 
     @Autowired
     DataSource dataSource;
@@ -39,7 +37,7 @@ public class DbDefColumnCommand implements Callable<Integer> {
             "KeyIndex");
         List<PrintLineAlignment> alignments = List.of(//
             PrintLineAlignment.LEFT, PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
-            PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
+            PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
             PrintLineAlignment.RIGHT);
 
         String catalogName = null;
@@ -60,14 +58,11 @@ public class DbDefColumnCommand implements Callable<Integer> {
             return -1;
         }
 
-        DatabaseNodeBuilder builder = new DatabaseNodeBuilder();
+        DatabaseNode databaseNode;
         try (Connection connection = this.dataSource.getConnection()) {
-            List<ColumnDefinition> columns = DatabaseUtils.getColumns(connection, catalogName,
-                schemaName, tableName);
-            builder.append(columns);
+            databaseNode = DatabaseUtils.getDatabaseNode(connection, catalogName, schemaName,
+                tableName);
         }
-
-        DatabaseNode databaseNode = builder.build();
 
         if (databaseNode.getCatalogs().isEmpty()) {
             System.out.println("Table not found: " + this.table);

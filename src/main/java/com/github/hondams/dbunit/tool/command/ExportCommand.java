@@ -9,6 +9,12 @@ import picocli.CommandLine.Option;
 @Component
 public class ExportCommand implements Callable<Integer> {
 
+    @Option(names = {"-s", "--scheme"})
+    String scheme;
+
+    @Option(names = {"-t", "--table"}, split = ",")
+    String[] table;
+
     @Option(names = {"-o", "--output"}, required = true)
     String output;
 

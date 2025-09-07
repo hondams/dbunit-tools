@@ -10,7 +10,7 @@ import picocli.CommandLine.Option;
 @Component
 public class ConvertCommand implements Callable<Integer> {
 
-    @Option(names = {"-i", "--input"}, required = true)
+    @Option(names = {"-i", "--input"}, split = ",", required = true)
     String[] input;
     @Option(names = {"-o", "--output"}, required = true)
     String output;

@@ -11,9 +11,9 @@ import picocli.CommandLine.Parameters;
 public class ConfigSetCommand implements Callable<Integer> {
 
     @Parameters(index = "0", description = "key", arity = "1")
-    private String key;
+    String key;
     @Parameters(index = "1", description = "value", arity = "1")
-    private String value;
+    String value;
 
     @Override
     public Integer call() throws Exception {

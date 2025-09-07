@@ -9,8 +9,8 @@ import picocli.CommandLine.IFactory;
 
 @Command(name = "",//
     description = "",//
-    subcommands = {ConfigCommand.class, ConvertCommand.class, ExportCommand.class,
-        ImportCommand.class, DbDefCommand.class, BatchCommand.class, ExitCommand.class})
+    subcommands = {BatchCommand.class, ConfigCommand.class, ConvertCommand.class,
+        ExportCommand.class, ImportCommand.class, DbDefCommand.class, SqlCommand.class, ExitCommand.class})
 @Component
 public class ConversationCommand implements Callable<Integer> {
 

@@ -3,6 +3,8 @@ package com.github.hondams.dbunit.tool.util;
 import com.github.hondams.dbunit.tool.model.CatalogDefinition;
 import com.github.hondams.dbunit.tool.model.ColumnDefinition;
 import com.github.hondams.dbunit.tool.model.ColumnKey;
+import com.github.hondams.dbunit.tool.model.DatabaseNode;
+import com.github.hondams.dbunit.tool.model.DatabaseNodeBuilder;
 import com.github.hondams.dbunit.tool.model.SchemaDefinition;
 import com.github.hondams.dbunit.tool.model.TableDefinition;
 import java.sql.Connection;
@@ -146,6 +148,17 @@ public class DatabaseUtils {
         fillKeyIndex(connection, columns, catalog, schemaPattern, tableNamePattern);
 
         return columns;
+    }
+
+    public DatabaseNode getDatabaseNode(Connection connection, String catalog, String schemaPattern,
+        String tableNamePattern) throws SQLException {
+
+        DatabaseNodeBuilder builder = new DatabaseNodeBuilder();
+        List<ColumnDefinition> columns = getColumns(connection, catalog, schemaPattern,
+            tableNamePattern);
+        builder.append(columns);
+
+        return builder.build();
     }
 
     private void fillKeyIndex(Connection connection, List<ColumnDefinition> columns, String catalog,
