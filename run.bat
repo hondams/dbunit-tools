@@ -12,5 +12,5 @@ for %%I in ("%EXECUTION_JAR%") do set EXECUTION_JAR=%%~fI
 java -version
 
 
-java -jar %EXECUTION_JAR%
+java -Dfile.encoding=UTF-8 -jar %EXECUTION_JAR%
 pause

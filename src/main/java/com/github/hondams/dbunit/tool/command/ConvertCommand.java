@@ -17,6 +17,7 @@ public class ConvertCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+
         System.out.println(
             "ConvertCommand: input=" + Arrays.asList(this.input) + ", output=" + this.output);
         return 0;
