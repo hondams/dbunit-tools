@@ -10,7 +10,7 @@ import picocli.CommandLine.IFactory;
 @Command(name = "",//
     description = "",//
     subcommands = {ConfigCommand.class, ConvertCommand.class, ExportCommand.class,
-        ImportCommand.class, DbDefCommand.class, ExitCommand.class})
+        ImportCommand.class, DbDefCommand.class, BatchCommand.class, ExitCommand.class})
 @Component
 public class ConversationCommand implements Callable<Integer> {
 

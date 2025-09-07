@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.IFactory;
 import picocli.CommandLine.Option;
 
-@Command(name = "batch", description = "")
+@Command(name = "batch", description = "Execute commands from a file")
 @Component
 public class BatchCommand implements Callable<Integer> {
 
