@@ -6,7 +6,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "config",//
-    description = "",//
+    description = "Configure dbunit-tools settings",//
     subcommands = {ConfigListCommand.class, ConfigSetCommand.class})
 @Component
 public class ConfigCommand implements Callable<Integer> {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "convert", description = "")
+@Command(name = "convert", description = "Convert or merge data file format")
 @Component
 public class ConvertCommand implements Callable<Integer> {
 

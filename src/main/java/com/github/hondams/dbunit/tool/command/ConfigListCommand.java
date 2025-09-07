@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 
 @Command(name = "list",//
-    description = "")
+    description = "List configurations")
 @Component
 public class ConfigListCommand implements Callable<Integer> {
 

@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "set",//
-    description = "")
+    description = "Set configuration")
 @Component
 public class ConfigSetCommand implements Callable<Integer> {
 

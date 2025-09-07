@@ -15,7 +15,7 @@ import picocli.CommandLine.IFactory;
     version = "dbunit-tools 1.0.0",//
     description = "A set of tools for DbUnit",//
     subcommands = {BatchCommand.class, ConfigCommand.class, ConvertCommand.class,
-        ExportCommand.class, ImportCommand.class, TableDefCommand.class})
+        ExportCommand.class, ImportCommand.class, DbDefCommand.class})
 public class DbUnitCommand implements Callable<Integer> {
 
     // picocliのCommandには、デフォルトコンストラクタが必要のため、@Autowiredを利用する

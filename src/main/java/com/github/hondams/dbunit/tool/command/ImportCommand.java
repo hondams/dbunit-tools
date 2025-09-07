@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "import", description = "")
+@Command(name = "import", description = "Import data from file to database")
 @Component
 public class ImportCommand implements Callable<Integer> {
 

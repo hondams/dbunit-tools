@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "export", description = "")
+@Command(name = "export", description = "Export data from database to file")
 @Component
 public class ExportCommand implements Callable<Integer> {
 

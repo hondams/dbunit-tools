@@ -7,12 +7,12 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IFactory;
 
-@Command(name = "",//
-    description = "",//
-    subcommands = {ConfigCommand.class, ConvertCommand.class, ExportCommand.class,
-        ImportCommand.class, DbDefCommand.class, ExitCommand.class})
+@Command(name = "dbdef",//
+    description = "Print database definition information",//
+    subcommands = {DbDefCatalogCommand.class, DbDefSchemaCommand.class, DbDefTableCommand.class,
+        DbDefColumnCommand.class})
 @Component
-public class ConversationCommand implements Callable<Integer> {
+public class DbDefCommand implements Callable<Integer> {
 
     // picocliのCommandには、デフォルトコンストラクタが必要のため、@Autowiredを利用する
     @Autowired

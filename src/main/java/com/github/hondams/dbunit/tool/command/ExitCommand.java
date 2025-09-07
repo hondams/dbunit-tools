@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 
 @Command(name = "exit",//
-    description = "")
+    description = "Exit dbunit-tools")
 @Component
 public class ExitCommand implements Callable<Integer> {
 

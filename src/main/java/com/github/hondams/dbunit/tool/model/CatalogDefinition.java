@@ -1,13 +1,10 @@
 package com.github.hondams.dbunit.tool.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
+import lombok.Value;
 
 @Data
 public class CatalogDefinition {
 
     private String catalogName;
-
-    private List<SchemaDefinition> schemas = new ArrayList<>();
 }
