@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.sql.Connection;
 import java.sql.SQLException;
 import lombok.experimental.UtilityClass;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -56,19 +55,17 @@ public class DbUnitUtils {
     //            throw new IllegalStateException(e);
     //        }
     //    }
-    public IDataSet createDatabaseDataSet(Connection connection, String schemaName) {
+    public IDataSet createDatabaseDataSet(DatabaseConnection databaseConnection) {
         try {
-            DatabaseConnection databaseConnection = new DatabaseConnection(connection, schemaName);
             return databaseConnection.createDataSet();
-        } catch (SQLException | DatabaseUnitException e) {
+        } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    public IDataSet createDatabaseDataSet(Connection connection, String schemaName,
+    public IDataSet createDatabaseDataSet(DatabaseConnection databaseConnection,
         String[] tableNames) {
         try {
-            DatabaseConnection databaseConnection = new DatabaseConnection(connection, schemaName);
             return databaseConnection.createDataSet(tableNames);
         } catch (SQLException | DatabaseUnitException e) {
             throw new IllegalStateException(e);

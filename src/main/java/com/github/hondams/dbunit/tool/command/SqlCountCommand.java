@@ -39,32 +39,33 @@ public class SqlCountCommand implements Callable<Integer> {
         List<List<String>> rows = new ArrayList<>();
 
         try (Connection connection = this.dataSource.getConnection()) {
-            Statement statement = connection.createStatement();
-
-            List<String> tableNames = new ArrayList<>();
-            if (this.table == null || this.table.length == 0) {
-                List<TableDefinition> tables = DatabaseUtils.getAllTables(connection);
-                for (TableDefinition tableDef : tables) {
-                    String tableName = tableDef.getTableName();
-                    if (tableDef.getSchemaName() != null) {
-                        tableName = tableDef.getSchemaName() + "." + tableName;
-                        if (tableDef.getCatalogName() != null) {
-                            tableName = tableDef.getCatalogName() + "." + tableName;
+            try (Statement statement = connection.createStatement()) {
+                List<String> tableNames = new ArrayList<>();
+                if (this.table == null || this.table.length == 0) {
+                    List<TableDefinition> tables = DatabaseUtils.getAllTables(connection);
+                    for (TableDefinition tableDef : tables) {
+                        String tableName = tableDef.getTableName();
+                        if (tableDef.getSchemaName() != null) {
+                            tableName = tableDef.getSchemaName() + "." + tableName;
+                            if (tableDef.getCatalogName() != null) {
+                                tableName = tableDef.getCatalogName() + "." + tableName;
+                            }
+                        }
+                        tableNames.add(tableName);
+                    }
+                } else {
+                    tableNames.addAll(List.of(this.table));
+                }
+                for (String tableName : tableNames) {
+                    String sql = "SELECT COUNT(*) FROM " + tableName;
+                    try (ResultSet resultSet = statement.executeQuery(sql)) {
+                        if (resultSet.next()) {
+                            int count = resultSet.getInt(1);
+                            rows.add(List.of(tableName, String.valueOf(count)));
+                        } else {
+                            rows.add(List.of(tableName, "0"));
                         }
                     }
-                    tableNames.add(tableName);
-                }
-            } else {
-                tableNames.addAll(List.of(this.table));
-            }
-            for (String tableName : tableNames) {
-                String sql = "SELECT COUNT(*) FROM " + tableName;
-                ResultSet resultSet = statement.executeQuery(sql);
-                if (resultSet.next()) {
-                    int count = resultSet.getInt(1);
-                    rows.add(List.of(tableName, String.valueOf(count)));
-                } else {
-                    rows.add(List.of(tableName, "0"));
                 }
             }
         }

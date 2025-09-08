@@ -37,6 +37,6 @@ public class ImportCommand implements Callable<Integer> {
             System.out.println("Imported from " + inputFile.getAbsolutePath());
         }
         return 0;
-        
+
     }
 }

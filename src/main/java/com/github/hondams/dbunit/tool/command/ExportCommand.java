@@ -5,6 +5,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
+import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,12 +31,12 @@ public class ExportCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
+            DatabaseConnection databaseConnection = new DatabaseConnection(connection, this.scheme);
             IDataSet inputDataSet;
             if (this.table == null || this.table.length == 0) {
-                inputDataSet = DbUnitUtils.createDatabaseDataSet(connection, this.scheme);
+                inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection);
             } else {
-                inputDataSet = DbUnitUtils.createDatabaseDataSet(connection, this.scheme,
-                    this.table);
+                inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection, this.table);
             }
 
             File outputFile = new File(this.output);

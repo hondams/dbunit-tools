@@ -22,9 +22,10 @@ public class SqlUpdateCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
-            Statement statement = connection.createStatement();
-            int result = statement.executeUpdate(this.sql);
-            System.out.println("Result: " + result);
+            try (Statement statement = connection.createStatement()) {
+                int result = statement.executeUpdate(this.sql);
+                System.out.println("Result: " + result);
+            }
         }
         return 0;
     }

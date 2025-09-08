@@ -72,11 +72,12 @@ public class DatabaseUtils {
     public List<CatalogDefinition> getAllCatalogs(Connection connection) throws SQLException {
         List<CatalogDefinition> catalogs = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
-        ResultSet rs = metaData.getCatalogs();
-        while (rs.next()) {
-            CatalogDefinition definition = new CatalogDefinition();
-            definition.setCatalogName(rs.getString("TABLE_CAT"));
-            catalogs.add(definition);
+        try (ResultSet rs = metaData.getCatalogs()) {
+            while (rs.next()) {
+                CatalogDefinition definition = new CatalogDefinition();
+                definition.setCatalogName(rs.getString("TABLE_CAT"));
+                catalogs.add(definition);
+            }
         }
         return catalogs;
     }
@@ -84,12 +85,13 @@ public class DatabaseUtils {
     public List<SchemaDefinition> getAllSchemas(Connection connection) throws SQLException {
         List<SchemaDefinition> schemas = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
-        ResultSet rs = metaData.getSchemas();
-        while (rs.next()) {
-            SchemaDefinition definition = new SchemaDefinition();
-            definition.setCatalogName(rs.getString("TABLE_CATALOG"));
-            definition.setSchemaName(rs.getString("TABLE_SCHEM"));
-            schemas.add(definition);
+        try (ResultSet rs = metaData.getSchemas()) {
+            while (rs.next()) {
+                SchemaDefinition definition = new SchemaDefinition();
+                definition.setCatalogName(rs.getString("TABLE_CATALOG"));
+                definition.setSchemaName(rs.getString("TABLE_SCHEM"));
+                schemas.add(definition);
+            }
         }
         return schemas;
     }
@@ -97,14 +99,15 @@ public class DatabaseUtils {
     public List<TableDefinition> getAllTables(Connection connection) throws SQLException {
         List<TableDefinition> tables = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
-        ResultSet rs = metaData.getTables(null, null, "%", null);
-        while (rs.next()) {
-            TableDefinition definition = new TableDefinition();
-            definition.setCatalogName(rs.getString("TABLE_CAT"));
-            definition.setSchemaName(rs.getString("TABLE_SCHEM"));
-            definition.setTableName(rs.getString("TABLE_NAME"));
-            definition.setTableType(rs.getString("TABLE_TYPE"));
-            tables.add(definition);
+        try (ResultSet rs = metaData.getTables(null, null, "%", null)) {
+            while (rs.next()) {
+                TableDefinition definition = new TableDefinition();
+                definition.setCatalogName(rs.getString("TABLE_CAT"));
+                definition.setSchemaName(rs.getString("TABLE_SCHEM"));
+                definition.setTableName(rs.getString("TABLE_NAME"));
+                definition.setTableType(rs.getString("TABLE_TYPE"));
+                tables.add(definition);
+            }
         }
 
         return tables;
@@ -119,31 +122,32 @@ public class DatabaseUtils {
         List<ColumnDefinition> columns = new ArrayList<>();
 
         DatabaseMetaData metaData = connection.getMetaData();
-        ResultSet rs = metaData.getColumns(catalog, schemaPattern, tableNamePattern, "%");
-        while (rs.next()) {
-            ColumnDefinition definition = new ColumnDefinition();
-            definition.setCatalogName(rs.getString("TABLE_CAT"));
-            definition.setSchemaName(rs.getString("TABLE_SCHEM"));
-            definition.setTableName(rs.getString("TABLE_NAME"));
-            definition.setColumnName(rs.getString("COLUMN_NAME"));
+        try (ResultSet rs = metaData.getColumns(catalog, schemaPattern, tableNamePattern, "%")) {
+            while (rs.next()) {
+                ColumnDefinition definition = new ColumnDefinition();
+                definition.setCatalogName(rs.getString("TABLE_CAT"));
+                definition.setSchemaName(rs.getString("TABLE_SCHEM"));
+                definition.setTableName(rs.getString("TABLE_NAME"));
+                definition.setColumnName(rs.getString("COLUMN_NAME"));
 
-            int dataType = rs.getInt("DATA_TYPE");
-            String sqlTypeName = DatabaseUtils.getSqlTypeName(dataType);
-            if (sqlTypeName == null) {
-                log.warn("Unknown SQL type. dataType={}", dataType);
-                sqlTypeName = "UNKNOWN";
+                int dataType = rs.getInt("DATA_TYPE");
+                String sqlTypeName = DatabaseUtils.getSqlTypeName(dataType);
+                if (sqlTypeName == null) {
+                    log.warn("Unknown SQL type. dataType={}", dataType);
+                    sqlTypeName = "UNKNOWN";
+                }
+                definition.setSqlTypeName(sqlTypeName);
+
+                definition.setTypeName(rs.getString("TYPE_NAME"));
+                definition.setColumnSize(rs.getInt("COLUMN_SIZE"));
+                int decimalDigits = rs.getInt("DECIMAL_DIGITS");
+                if (!rs.wasNull()) {
+                    definition.setDecimalDigits(decimalDigits);
+                }
+                definition.setNullable(rs.getString("IS_NULLABLE"));
+
+                columns.add(definition);
             }
-            definition.setSqlTypeName(sqlTypeName);
-
-            definition.setTypeName(rs.getString("TYPE_NAME"));
-            definition.setColumnSize(rs.getInt("COLUMN_SIZE"));
-            int decimalDigits = rs.getInt("DECIMAL_DIGITS");
-            if (!rs.wasNull()) {
-                definition.setDecimalDigits(decimalDigits);
-            }
-            definition.setNullable(rs.getString("IS_NULLABLE"));
-
-            columns.add(definition);
         }
 
         fillKeyIndex(connection, columns);
@@ -181,24 +185,26 @@ public class DatabaseUtils {
 
         for (TableKey tableKey : tableColumnsMap.keySet()) {
             DatabaseMetaData metaData = connection.getMetaData();
-            ResultSet rs = metaData.getPrimaryKeys(//
+            try (ResultSet rs = metaData.getPrimaryKeys(//
                 tableKey.getCatalogName() == null ? "" : tableKey.getCatalogName(),//
                 tableKey.getSchemaName() == null ? "" : tableKey.getSchemaName(),//
-                tableKey.getTableName());
-            while (rs.next()) {
-                String catalogName = rs.getString("TABLE_CAT");
-                String schemaName = rs.getString("TABLE_SCHEM");
-                String tableName = rs.getString("TABLE_NAME");
-                String columnName = rs.getString("COLUMN_NAME");
-                short keySeq = rs.getShort("KEY_SEQ");
-                ColumnKey key = new ColumnKey(catalogName, schemaName, tableName, columnName);
-                ColumnDefinition column = columnMap.get(key);
-                if (column == null) {
-                    log.warn(
-                        "Column not found for primary key. catalog={}, schema={}, table={}, column={}",
-                        catalogName, schemaName, tableName, columnName);
-                } else {
-                    column.setKeyIndex((int) keySeq);
+                tableKey.getTableName())) {
+
+                while (rs.next()) {
+                    String catalogName = rs.getString("TABLE_CAT");
+                    String schemaName = rs.getString("TABLE_SCHEM");
+                    String tableName = rs.getString("TABLE_NAME");
+                    String columnName = rs.getString("COLUMN_NAME");
+                    short keySeq = rs.getShort("KEY_SEQ");
+                    ColumnKey key = new ColumnKey(catalogName, schemaName, tableName, columnName);
+                    ColumnDefinition column = columnMap.get(key);
+                    if (column == null) {
+                        log.warn(
+                            "Column not found for primary key. catalog={}, schema={}, table={}, column={}",
+                            catalogName, schemaName, tableName, columnName);
+                    } else {
+                        column.setKeyIndex((int) keySeq);
+                    }
                 }
             }
         }

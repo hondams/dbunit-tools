@@ -32,35 +32,36 @@ public class SqlQueryCommand implements Callable<Integer> {
         List<List<String>> rows = new ArrayList<>();
 
         try (Connection connection = this.dataSource.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(this.sql);
+            try (Statement statement = connection.createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery(this.sql)) {
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    for (int i = 1; i <= columnCount; i++) {
+                        header.add(metaData.getColumnName(i));
+                        int columnType = metaData.getColumnType(i);
+                        switch (columnType) {
+                            case java.sql.Types.INTEGER:
+                            case java.sql.Types.BIGINT:
+                            case java.sql.Types.DECIMAL:
+                            case java.sql.Types.NUMERIC:
+                            case java.sql.Types.FLOAT:
+                            case java.sql.Types.REAL:
+                            case java.sql.Types.DOUBLE:
+                                alignments.add(PrintLineAlignment.RIGHT);
+                                break;
+                            default:
+                                alignments.add(PrintLineAlignment.LEFT);
+                        }
+                    }
 
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            for (int i = 1; i <= columnCount; i++) {
-                header.add(metaData.getColumnName(i));
-                int columnType = metaData.getColumnType(i);
-                switch (columnType) {
-                    case java.sql.Types.INTEGER:
-                    case java.sql.Types.BIGINT:
-                    case java.sql.Types.DECIMAL:
-                    case java.sql.Types.NUMERIC:
-                    case java.sql.Types.FLOAT:
-                    case java.sql.Types.REAL:
-                    case java.sql.Types.DOUBLE:
-                        alignments.add(PrintLineAlignment.RIGHT);
-                        break;
-                    default:
-                        alignments.add(PrintLineAlignment.LEFT);
+                    while (resultSet.next()) {
+                        List<String> row = new ArrayList<>();
+                        for (int i = 1; i <= columnCount; i++) {
+                            row.add(toString(resultSet.getObject(i)));
+                        }
+                        rows.add(row);
+                    }
                 }
-            }
-
-            while (resultSet.next()) {
-                List<String> row = new ArrayList<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    row.add(toString(resultSet.getObject(i)));
-                }
-                rows.add(row);
             }
         }
 
