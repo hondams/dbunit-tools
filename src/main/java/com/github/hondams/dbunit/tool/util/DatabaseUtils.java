@@ -7,6 +7,7 @@ import com.github.hondams.dbunit.tool.model.DatabaseNode;
 import com.github.hondams.dbunit.tool.model.DatabaseNodeBuilder;
 import com.github.hondams.dbunit.tool.model.SchemaDefinition;
 import com.github.hondams.dbunit.tool.model.TableDefinition;
+import com.github.hondams.dbunit.tool.model.TableKey;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -145,7 +146,7 @@ public class DatabaseUtils {
             columns.add(definition);
         }
 
-        fillKeyIndex(connection, columns, catalog, schemaPattern, tableNamePattern);
+        fillKeyIndex(connection, columns);
 
         return columns;
     }
@@ -161,32 +162,44 @@ public class DatabaseUtils {
         return builder.build();
     }
 
-    private void fillKeyIndex(Connection connection, List<ColumnDefinition> columns, String catalog,
-        String schemaPattern, String tableNamePattern) throws SQLException {
+    private void fillKeyIndex(Connection connection, List<ColumnDefinition> columns)
+        throws SQLException {
+
+        Map<TableKey, List<ColumnDefinition>> tableColumnsMap = new HashMap<>();
 
         Map<ColumnKey, ColumnDefinition> columnMap = new HashMap<>();
         for (ColumnDefinition column : columns) {
             ColumnKey key = new ColumnKey(column.getCatalogName(), column.getSchemaName(),
                 column.getTableName(), column.getColumnName());
+            TableKey tableKey = new TableKey(column.getCatalogName(), column.getSchemaName(),
+                column.getTableName());
             columnMap.put(key, column);
+            List<ColumnDefinition> tableColumns = tableColumnsMap.computeIfAbsent(tableKey,
+                k -> new ArrayList<>());
+            tableColumns.add(column);
         }
 
-        DatabaseMetaData metaData = connection.getMetaData();
-        ResultSet rs = metaData.getPrimaryKeys(catalog, schemaPattern, tableNamePattern);
-        while (rs.next()) {
-            String catalogName = rs.getString("TABLE_CAT");
-            String schemaName = rs.getString("TABLE_SCHEM");
-            String tableName = rs.getString("TABLE_NAME");
-            String columnName = rs.getString("COLUMN_NAME");
-            short keySeq = rs.getShort("KEY_SEQ");
-            ColumnKey key = new ColumnKey(catalogName, schemaName, tableName, columnName);
-            ColumnDefinition column = columnMap.get(key);
-            if (column == null) {
-                log.warn(
-                    "Column not found for primary key. catalog={}, schema={}, table={}, column={}",
-                    catalogName, schemaName, tableName, columnName);
-            } else {
-                column.setKeyIndex((int) keySeq);
+        for (TableKey tableKey : tableColumnsMap.keySet()) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet rs = metaData.getPrimaryKeys(//
+                tableKey.getCatalogName() == null ? "" : tableKey.getCatalogName(),//
+                tableKey.getSchemaName() == null ? "" : tableKey.getSchemaName(),//
+                tableKey.getTableName());
+            while (rs.next()) {
+                String catalogName = rs.getString("TABLE_CAT");
+                String schemaName = rs.getString("TABLE_SCHEM");
+                String tableName = rs.getString("TABLE_NAME");
+                String columnName = rs.getString("COLUMN_NAME");
+                short keySeq = rs.getShort("KEY_SEQ");
+                ColumnKey key = new ColumnKey(catalogName, schemaName, tableName, columnName);
+                ColumnDefinition column = columnMap.get(key);
+                if (column == null) {
+                    log.warn(
+                        "Column not found for primary key. catalog={}, schema={}, table={}, column={}",
+                        catalogName, schemaName, tableName, columnName);
+                } else {
+                    column.setKeyIndex((int) keySeq);
+                }
             }
         }
     }

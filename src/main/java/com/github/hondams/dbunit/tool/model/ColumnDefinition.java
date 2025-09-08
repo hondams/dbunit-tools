@@ -1,5 +1,6 @@
 package com.github.hondams.dbunit.tool.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
@@ -13,7 +14,9 @@ public class ColumnDefinition {
 
     private String typeName;
     private int columnSize;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer decimalDigits;
     private String nullable;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer keyIndex;
 }

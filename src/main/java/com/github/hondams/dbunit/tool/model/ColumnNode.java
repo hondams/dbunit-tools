@@ -15,5 +15,6 @@ public class ColumnNode {
     @JsonInclude(Include.NON_NULL)
     private Integer decimalDigits;
     private String nullable;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer keyIndex;
 }

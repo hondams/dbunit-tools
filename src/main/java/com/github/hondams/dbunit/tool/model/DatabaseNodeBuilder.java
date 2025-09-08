@@ -36,6 +36,7 @@ public class DatabaseNodeBuilder {
         node.setColumnSize(column.getColumnSize());
         node.setDecimalDigits(column.getDecimalDigits());
         node.setNullable(column.getNullable());
+        node.setKeyIndex(column.getKeyIndex());
 
         TableKey tableKey = new TableKey(column.getCatalogName(), column.getSchemaName(),
             column.getTableName());
