@@ -15,3 +15,7 @@
 - 日付
     - yyyy-MM-dd HH:mm:ss
     - yyyy-MM-dd HH:mm:ss.SSS
+
+## データ比較
+
+- ファイルに出力すると、DBデータ型の情報がなくなるので、すべて、文字列、Unkown型として評価さる。

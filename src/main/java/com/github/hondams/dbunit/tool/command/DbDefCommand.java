@@ -10,7 +10,7 @@ import picocli.CommandLine.IFactory;
 @Command(name = "dbdef",//
     description = "Print database definition information",//
     subcommands = {DbDefCatalogCommand.class, DbDefSchemaCommand.class, DbDefTableCommand.class,
-        DbDefColumnCommand.class})
+        DbDefColumnCommand.class, DbDefExportCommand.class})
 @Component
 public class DbDefCommand implements Callable<Integer> {
 
