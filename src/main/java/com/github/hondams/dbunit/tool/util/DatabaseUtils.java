@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import oracle.jdbc.OracleTypes;
 
 @UtilityClass
 @Slf4j
@@ -51,6 +52,7 @@ public class DatabaseUtils {
         Map.entry(java.sql.Types.OTHER, "OTHER"),//
         Map.entry(java.sql.Types.REAL, "REAL"),//
         Map.entry(java.sql.Types.REF, "REF"),//
+        Map.entry(java.sql.Types.REF_CURSOR, "REF_CURSOR"),//
         Map.entry(java.sql.Types.ROWID, "ROWID"),//
         Map.entry(java.sql.Types.SMALLINT, "SMALLINT"),//
         Map.entry(java.sql.Types.SQLXML, "SQLXML"),//
@@ -64,9 +66,73 @@ public class DatabaseUtils {
         Map.entry(java.sql.Types.VARCHAR, "VARCHAR")//
 
     );
+    private final Map<Integer, String> ORACLE_SQL_TYPE_NAME_MAP = Map.ofEntries(//
+        Map.entry(OracleTypes.ARRAY, ""),//
+        Map.entry(OracleTypes.BFILE, ""),//
+        Map.entry(OracleTypes.BIGINT, ""),//
+        Map.entry(OracleTypes.BINARY, ""),//
+        Map.entry(OracleTypes.BINARY_DOUBLE, ""),//
+        Map.entry(OracleTypes.BINARY_FLOAT, ""),//
+        Map.entry(OracleTypes.BIT, ""),//
+        Map.entry(OracleTypes.BLOB, ""),//
+        Map.entry(OracleTypes.BOOLEAN, ""),//
+        Map.entry(OracleTypes.CHAR, ""),//
+        Map.entry(OracleTypes.CLOB, ""),//
+        Map.entry(OracleTypes.CURSOR, ""),//
+        Map.entry(OracleTypes.DATALINK, ""),//
+        Map.entry(OracleTypes.DATE, ""),//
+        Map.entry(OracleTypes.DECIMAL, ""),//
+        Map.entry(OracleTypes.DOUBLE, ""),//
+        Map.entry(OracleTypes.FIXED_CHAR, ""),//
+        Map.entry(OracleTypes.FLOAT, ""),//
+        Map.entry(OracleTypes.INTEGER, ""),//
+        Map.entry(OracleTypes.INTERVALDS, ""),//
+        Map.entry(OracleTypes.INTERVALYM, ""),//
+        Map.entry(OracleTypes.JAVA_OBJECT, ""),//
+        Map.entry(OracleTypes.JAVA_STRUCT, ""),//
+        Map.entry(OracleTypes.JSON, ""),//
+        Map.entry(OracleTypes.LONGNVARCHAR, ""),//
+        Map.entry(OracleTypes.LONGVARBINARY, ""),//
+        Map.entry(OracleTypes.LONGVARCHAR, ""),//
+        Map.entry(OracleTypes.NCHAR, ""),//
+        Map.entry(OracleTypes.NCLOB, ""),//
+        Map.entry(OracleTypes.NULL, ""),//
+        Map.entry(OracleTypes.NUMBER, ""),//
+        //Map.entry(OracleTypes.NUMERIC, ""),//OracleTypes.NUMBERと同じ
+        Map.entry(OracleTypes.NVARCHAR, ""),//
+        Map.entry(OracleTypes.OPAQUE, ""),//
+        Map.entry(OracleTypes.OTHER, ""),//
+        Map.entry(OracleTypes.PLSQL_BOOLEAN, ""),//
+        Map.entry(OracleTypes.PLSQL_INDEX_TABLE, ""),//
+        //Map.entry(OracleTypes.RAW, ""),//OracleTypes.BINARYと同じ
+        Map.entry(OracleTypes.REAL, ""),//
+        Map.entry(OracleTypes.REF, ""),//
+        Map.entry(OracleTypes.REF_CURSOR, ""),//
+        Map.entry(OracleTypes.ROWID, ""),//
+        Map.entry(OracleTypes.SMALLINT, ""),//
+        Map.entry(OracleTypes.SQLXML, ""),//
+        Map.entry(OracleTypes.STRUCT, ""),//
+        Map.entry(OracleTypes.TIME, ""),//
+        Map.entry(OracleTypes.TIMESTAMP, ""),//
+        Map.entry(OracleTypes.TIMESTAMPLTZ, ""),//
+        //Map.entry(OracleTypes.TIMESTAMPNS, ""),//OracleTypes.BINARY_FLOATと同じ
+        Map.entry(OracleTypes.TIMESTAMPTZ, ""),//
+        Map.entry(OracleTypes.TINYINT, ""),//
+        Map.entry(OracleTypes.VARBINARY, ""),//
+        Map.entry(OracleTypes.VARCHAR, ""),//
+        Map.entry(OracleTypes.VECTOR, ""),//
+        Map.entry(OracleTypes.VECTOR_BINARY, ""),//
+        Map.entry(OracleTypes.VECTOR_FLOAT32, ""),//
+        Map.entry(OracleTypes.VECTOR_FLOAT64, ""),//
+        Map.entry(OracleTypes.VECTOR_INT8, "")//
+    );
 
     public String getSqlTypeName(int sqlType) {
-        return SQL_TYPE_NAME_MAP.get(sqlType);
+        String sqlTypeName = SQL_TYPE_NAME_MAP.get(sqlType);
+        if (sqlTypeName == null) {
+            sqlTypeName = ORACLE_SQL_TYPE_NAME_MAP.get(sqlType);
+        }
+        return sqlTypeName;
     }
 
     public List<CatalogDefinition> getAllCatalogs(Connection connection) throws SQLException {
@@ -97,9 +163,14 @@ public class DatabaseUtils {
     }
 
     public List<TableDefinition> getAllTables(Connection connection) throws SQLException {
+        return getTables(connection, null, null, "%");
+    }
+
+    public List<TableDefinition> getTables(Connection connection, String catalog,
+        String schemaPattern, String tableNamePattern) throws SQLException {
         List<TableDefinition> tables = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
-        try (ResultSet rs = metaData.getTables(null, null, "%", null)) {
+        try (ResultSet rs = metaData.getTables(catalog, schemaPattern, tableNamePattern, null)) {
             while (rs.next()) {
                 TableDefinition definition = new TableDefinition();
                 definition.setCatalogName(rs.getString("TABLE_CAT"));

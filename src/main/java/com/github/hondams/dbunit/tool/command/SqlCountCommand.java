@@ -1,6 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.model.TableDefinition;
+import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import com.github.hondams.dbunit.tool.util.PrintLineUtils;
@@ -40,23 +41,29 @@ public class SqlCountCommand implements Callable<Integer> {
 
         try (Connection connection = this.dataSource.getConnection()) {
             try (Statement statement = connection.createStatement()) {
-                List<String> tableNames = new ArrayList<>();
+                List<TableKey> tableKeys = new ArrayList<>();
+
                 if (this.table == null || this.table.length == 0) {
-                    List<TableDefinition> tables = DatabaseUtils.getAllTables(connection);
-                    for (TableDefinition tableDef : tables) {
-                        String tableName = tableDef.getTableName();
-                        if (tableDef.getSchemaName() != null) {
-                            tableName = tableDef.getSchemaName() + "." + tableName;
-                            if (tableDef.getCatalogName() != null) {
-                                tableName = tableDef.getCatalogName() + "." + tableName;
-                            }
-                        }
-                        tableNames.add(tableName);
+                    List<TableDefinition> tableDefinitions = DatabaseUtils.getAllTables(connection);
+                    for (TableDefinition tableDefinition : tableDefinitions) {
+                        tableKeys.add(TableKey.fromTableDefinition(tableDefinition));
                     }
                 } else {
-                    tableNames.addAll(List.of(this.table));
+                    for (String tbl : this.table) {
+                        TableKey key = TableKey.fromQualifiedTableName(tbl);
+                        if (key == null) {
+                            System.out.println("Invalid table name: " + tbl);
+                            return -1;
+                        }
+                        List<TableDefinition> tableDefinitions = DatabaseUtils.getTables(connection,
+                            key.getCatalogName(), key.getSchemaName(), key.getTableName());
+                        for (TableDefinition tableDefinition : tableDefinitions) {
+                            tableKeys.add(TableKey.fromTableDefinition(tableDefinition));
+                        }
+                    }
                 }
-                for (String tableName : tableNames) {
+                for (TableKey tableKey : tableKeys) {
+                    String tableName = TableKey.toQualifiedTableName(tableKey);
                     String sql = "SELECT COUNT(*) FROM " + tableName;
                     try (ResultSet resultSet = statement.executeQuery(sql)) {
                         if (resultSet.next()) {

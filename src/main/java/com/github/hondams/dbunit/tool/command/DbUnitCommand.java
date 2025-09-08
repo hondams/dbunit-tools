@@ -40,7 +40,7 @@ public class DbUnitCommand implements Callable<Integer> {
                 if (line.trim().isEmpty()) {
                     commandLine.usage(System.out);
                 } else {
-                    String[] args = getArga(line);
+                    String[] args = getArgs(line);
                     commandLine.execute(args);
                     if ("exit".equals(line)) {
                         exit = true;
@@ -51,7 +51,7 @@ public class DbUnitCommand implements Callable<Integer> {
         return 0;
     }
 
-    private String[] getArga(String line) {
+    private String[] getArgs(String line) {
         String[] args = org.apache.commons.exec.CommandLine.parse(line).toStrings();
         for (int i = 0; i < args.length; i++) {
             args[i] = unescapeArgument(args[i]);

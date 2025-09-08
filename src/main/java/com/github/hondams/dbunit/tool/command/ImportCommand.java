@@ -32,9 +32,20 @@ public class ImportCommand implements Callable<Integer> {
             File inputFile = new File(this.input);
             IDataSet inputDataSet = DbUnitUtils.load(inputFile);
 
-            DatabaseConnection databaseConnection = new DatabaseConnection(connection, this.scheme);
-            DatabaseOperation.CLEAN_INSERT.execute(databaseConnection, inputDataSet);
-            System.out.println("Imported from " + inputFile.getAbsolutePath());
+            boolean oldAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                DatabaseConnection databaseConnection = new DatabaseConnection(connection,
+                    this.scheme);
+                DatabaseOperation.CLEAN_INSERT.execute(databaseConnection, inputDataSet);
+                System.out.println("Imported from " + inputFile.getAbsolutePath());
+                connection.commit();
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(oldAutoCommit);
+            }
         }
         return 0;
 

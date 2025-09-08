@@ -2,6 +2,7 @@ package com.github.hondams.dbunit.tool.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
+import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import java.io.File;
 import java.sql.Connection;
@@ -31,32 +32,16 @@ public class DbDefExportCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        String catalogName = null;
-        String schemaName = null;
-        String tableName;
-        if (this.table == null) {
-            tableName = "%";
-        } else {
-            String[] parts = this.table.split("\\.");
-            if (parts.length == 1) {
-                tableName = parts[0];
-            } else if (parts.length == 2) {
-                schemaName = parts[0];
-                tableName = parts[1];
-            } else if (parts.length == 3) {
-                catalogName = parts[0];
-                schemaName = parts[1];
-                tableName = parts[2];
-            } else {
-                System.out.println("Invalid table name: " + this.table);
-                return -1;
-            }
+        TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
+        if (tableKey == null) {
+            System.out.println("Invalid table name: " + this.table);
+            return -1;
         }
 
         DatabaseNode databaseNode;
         try (Connection connection = this.dataSource.getConnection()) {
-            databaseNode = DatabaseUtils.getDatabaseNode(connection, catalogName, schemaName,
-                tableName);
+            databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKey.getCatalogName(),
+                tableKey.getSchemaName(), tableKey.getTableName());
         }
 
         File outputFile = new File(this.output);

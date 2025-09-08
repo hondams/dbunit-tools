@@ -38,8 +38,7 @@ public class DatabaseNodeBuilder {
         node.setNullable(column.getNullable());
         node.setKeyIndex(column.getKeyIndex());
 
-        TableKey tableKey = new TableKey(column.getCatalogName(), column.getSchemaName(),
-            column.getTableName());
+        TableKey tableKey = TableKey.fromColumnDefinition(column);
         TableNode table = getTableNode(tableKey);
         table.getColumns().add(node);
     }
@@ -47,7 +46,7 @@ public class DatabaseNodeBuilder {
     private TableNode getTableNode(TableKey key) {
         TableNode node = this.tableMap.get(key);
         if (node == null) {
-            SchemaKey schemaKey = new SchemaKey(key.getCatalogName(), key.getSchemaName());
+            SchemaKey schemaKey = SchemaKey.fromTableKey(key);
             SchemaNode schemaNode = getSchemaNode(schemaKey);
 
             node = new TableNode();
@@ -62,7 +61,7 @@ public class DatabaseNodeBuilder {
     private SchemaNode getSchemaNode(SchemaKey key) {
         SchemaNode node = this.schemaMap.get(key);
         if (node == null) {
-            CatalogKey catalogKey = new CatalogKey(key.getCatalogName());
+            CatalogKey catalogKey = CatalogKey.fromSchemaKey(key);
             CatalogNode catalogNode = getCatalogNode(catalogKey);
 
             node = new SchemaNode();

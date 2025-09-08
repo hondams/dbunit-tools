@@ -6,4 +6,8 @@ import lombok.Value;
 public class CatalogKey {
 
     String catalogName;
+
+    public static CatalogKey fromSchemaKey(SchemaKey schemaKey) {
+        return new CatalogKey(schemaKey.getCatalogName());
+    }
 }

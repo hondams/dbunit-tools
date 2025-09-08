@@ -4,6 +4,7 @@ import com.github.hondams.dbunit.tool.model.CatalogNode;
 import com.github.hondams.dbunit.tool.model.ColumnNode;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
 import com.github.hondams.dbunit.tool.model.SchemaNode;
+import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.model.TableNode;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
@@ -40,28 +41,16 @@ public class DbDefColumnCommand implements Callable<Integer> {
             PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
             PrintLineAlignment.RIGHT);
 
-        String catalogName = null;
-        String schemaName = null;
-        String tableName;
-        String[] parts = this.table.split("\\.");
-        if (parts.length == 1) {
-            tableName = parts[0];
-        } else if (parts.length == 2) {
-            schemaName = parts[0];
-            tableName = parts[1];
-        } else if (parts.length == 3) {
-            catalogName = parts[0];
-            schemaName = parts[1];
-            tableName = parts[2];
-        } else {
+        TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
+        if (tableKey == null) {
             System.out.println("Invalid table name: " + this.table);
             return -1;
         }
 
         DatabaseNode databaseNode;
         try (Connection connection = this.dataSource.getConnection()) {
-            databaseNode = DatabaseUtils.getDatabaseNode(connection, catalogName, schemaName,
-                tableName);
+            databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKey.getCatalogName(),
+                tableKey.getSchemaName(), tableKey.getTableName());
         }
 
         if (databaseNode.getCatalogs().isEmpty()) {
