@@ -11,7 +11,7 @@ for %%I in ("%EXECUTION_JAR%") do set EXECUTION_JAR=%%~fI
 
 java -version
 
-set SPRING_DATASOURCE_URL=jdbc:oracke:thin:@//localhost:1421/test
+set SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//localhost:1521/test
 set SPRING_DATASOURCE_DRIVERCLASSNAME=oracle.jdbc.OracleDriver
 set SPRING_DATASOURCE_USERNAME=system
 set SPRING_DATASOURCE_PASSWORD=manager
