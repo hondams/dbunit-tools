@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.ForwardOnlyResultSetTableFactory;
 import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.dbunit.ext.db2.Db2DataTypeFactory;
@@ -29,6 +30,8 @@ public class DatabaseConnectionFactory {
 
             IDataTypeFactory dataTypeFactory = createDataTypeFactory(productName);
             databaseConfig.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, dataTypeFactory);
+            databaseConfig.setProperty(DatabaseConfig.PROPERTY_RESULTSET_TABLE_FACTORY,
+                new ForwardOnlyResultSetTableFactory());
 
             if (productName != null && productName.equalsIgnoreCase("oracle")) {
                 databaseConfig.setProperty(DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES,
