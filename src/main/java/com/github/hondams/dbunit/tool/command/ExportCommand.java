@@ -8,11 +8,11 @@ import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.QueryDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,16 +60,28 @@ public class ExportCommand implements Callable<Integer> {
                 List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(includeTableNames);
                 List<TableDefinition> tableDefinitions = DatabaseUtils.getTables(connection,
                     tableKeys);
-                List<String> tableNames = new ArrayList<>();
+                //                List<String> tableNames = new ArrayList<>();
+                //                for (TableDefinition tableDefinition : tableDefinitions) {
+                //                    if (this.scheme.equalsIgnoreCase(tableDefinition.getSchemaName())) {
+                //                        if (!isExcluded(tableDefinition.getTableName())) {
+                //                            tableNames.add(tableDefinition.getTableName());
+                //                        }
+                //                    }
+                //                }
+                //                inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection,
+                //                    tableNames.toArray(new String[0]));
+                QueryDataSet queryDataSet = new QueryDataSet(databaseConnection);
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     if (this.scheme.equalsIgnoreCase(tableDefinition.getSchemaName())) {
                         if (!isExcluded(tableDefinition.getTableName())) {
-                            tableNames.add(tableDefinition.getTableName());
+                            TableKey tableKey = TableKey.fromTableDefinition(tableDefinition);
+                            String tableName = TableKey.toQualifiedTableName(tableKey);
+                            queryDataSet.addTable(tableDefinition.getTableName(),
+                                "SELECT * FROM " + tableName);
                         }
                     }
                 }
-                inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection,
-                    tableNames.toArray(new String[0]));
+                inputDataSet = queryDataSet;
             }
 
             File outputFile = new File(this.output);
