@@ -6,6 +6,7 @@ import com.github.hondams.dbunit.tool.model.DatabaseNode;
 import com.github.hondams.dbunit.tool.model.SchemaNode;
 import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.model.TableNode;
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import com.github.hondams.dbunit.tool.util.PrintLineUtils;
@@ -43,8 +44,7 @@ public class DbDefColumnCommand implements Callable<Integer> {
 
         TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
         if (tableKey == null) {
-            System.out.println("Invalid table name: " + this.table);
-            return -1;
+            throw new IllegalStateException("Invalid table name: " + this.table);
         }
 
         DatabaseNode databaseNode;
@@ -54,15 +54,14 @@ public class DbDefColumnCommand implements Callable<Integer> {
         }
 
         if (databaseNode.getCatalogs().isEmpty()) {
-            System.out.println("Table not found: " + this.table);
-            return -1;
+            throw new IllegalStateException("Table not found: " + this.table);
         }
 
         for (CatalogNode catalogNode : databaseNode.getCatalogs()) {
             for (SchemaNode schemaNode : catalogNode.getSchemas()) {
                 for (TableNode tableNode : schemaNode.getTables()) {
                     List<List<String>> rows = new ArrayList<>();
-                    System.out.println("Table: " + catalogNode.getCatalogName()//
+                    ConsolePrinter.println("Table: " + catalogNode.getCatalogName()//
                         + "." + schemaNode.getSchemaName()//
                         + "." + tableNode.getTableName());
                     for (ColumnNode columnNode : tableNode.getColumns()) {
@@ -82,9 +81,9 @@ public class DbDefColumnCommand implements Callable<Integer> {
                     }
                     List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
                     for (String line : lines) {
-                        System.out.println(line);
+                        ConsolePrinter.println(line);
                     }
-                    System.out.println();
+                    ConsolePrinter.println("");
                 }
             }
         }

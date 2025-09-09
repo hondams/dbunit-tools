@@ -2,6 +2,7 @@ package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.model.TableDefinition;
 import com.github.hondams.dbunit.tool.model.TableKey;
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import com.github.hondams.dbunit.tool.util.PrintLineUtils;
@@ -79,7 +80,7 @@ public class SqlCountCommand implements Callable<Integer> {
 
         List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
         for (String line : lines) {
-            System.out.println(line);
+            ConsolePrinter.println(line);
         }
         return 0;
     }

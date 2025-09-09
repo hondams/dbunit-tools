@@ -1,5 +1,6 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,17 +27,18 @@ public class DbUnitCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        System.out.println("Start conversation mode.");
-        System.out.println(" Use '-h' option to see usage.");
-        System.out.println(" Input 'exit' to exit.");
+        ConsolePrinter.println("Start conversation mode.");
+        ConsolePrinter.println(" Use '-h' option to see usage.");
+        ConsolePrinter.println(" Input 'exit' to exit.");
         ConversationCommand conversationCommand = this.applicationContext.getBean(
             ConversationCommand.class);
         CommandLine commandLine = new CommandLine(conversationCommand, this.factory);
         boolean exit = false;
         try (Scanner scanner = new Scanner(System.in)) {
             while (!exit) {
-                System.out.print("> ");
+                ConsolePrinter.printPrompt();
                 String line = scanner.nextLine();
+                ConsolePrinter.printInput(line);
                 if (line.trim().isEmpty()) {
                     commandLine.usage(System.out);
                 } else {

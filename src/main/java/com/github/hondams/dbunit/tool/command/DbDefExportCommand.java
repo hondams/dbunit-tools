@@ -3,6 +3,7 @@ package com.github.hondams.dbunit.tool.command;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
 import com.github.hondams.dbunit.tool.model.TableKey;
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import java.io.File;
 import java.sql.Connection;
@@ -34,8 +35,7 @@ public class DbDefExportCommand implements Callable<Integer> {
 
         TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
         if (tableKey == null) {
-            System.out.println("Invalid table name: " + this.table);
-            return -1;
+            throw new IllegalStateException("Invalid table name: " + this.table);
         }
 
         DatabaseNode databaseNode;
@@ -48,12 +48,12 @@ public class DbDefExportCommand implements Callable<Integer> {
         if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
             boolean createdDirs = outputFile.getParentFile().mkdirs();
             if (!createdDirs) {
-                System.err.println("Failed to create directories: " + outputFile.getParentFile());
-                return -1;
+                throw new IllegalStateException(
+                    "Failed to create directories: " + outputFile.getParentFile());
             }
         }
         this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, databaseNode);
-        System.out.println("Exported to " + outputFile.getAbsolutePath());
+        ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
 
         return 0;
     }

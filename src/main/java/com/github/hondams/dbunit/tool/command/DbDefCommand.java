@@ -1,6 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
 import java.util.concurrent.Callable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
@@ -12,6 +13,7 @@ import picocli.CommandLine.IFactory;
     subcommands = {DbDefCatalogCommand.class, DbDefSchemaCommand.class, DbDefTableCommand.class,
         DbDefColumnCommand.class, DbDefExportCommand.class})
 @Component
+@Slf4j
 public class DbDefCommand implements Callable<Integer> {
 
     // picocliのCommandには、デフォルトコンストラクタが必要のため、@Autowiredを利用する
@@ -22,6 +24,7 @@ public class DbDefCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         CommandLine commandLine = new CommandLine(this, this.factory);
         commandLine.usage(System.out);
+        log.info("Invalid command.");
         return 0;
     }
 }

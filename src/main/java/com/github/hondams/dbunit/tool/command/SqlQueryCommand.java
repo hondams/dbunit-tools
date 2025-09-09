@@ -1,5 +1,6 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import com.github.hondams.dbunit.tool.util.PrintLineUtils;
 import java.sql.Connection;
@@ -67,7 +68,7 @@ public class SqlQueryCommand implements Callable<Integer> {
 
         List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
         for (String line : lines) {
-            System.out.println(line);
+            ConsolePrinter.println(line);
         }
         return 0;
     }

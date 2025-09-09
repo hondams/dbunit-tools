@@ -1,5 +1,6 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -28,7 +29,7 @@ public class BatchCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         Path path = Path.of(this.file);
-        System.out.println("Start batch mode. file=" + path.toAbsolutePath());
+        ConsolePrinter.println("Start batch mode. file=" + path.toAbsolutePath());
 
         ConversationCommand conversationCommand = this.applicationContext.getBean(
             ConversationCommand.class);
@@ -36,7 +37,7 @@ public class BatchCommand implements Callable<Integer> {
 
         List<String> lines = Files.readAllLines(path);
         for (String line : lines) {
-            System.out.println("> " + line);
+            ConsolePrinter.println("> " + line);
             if (!line.trim().isEmpty() && !line.startsWith("#")) {
                 String[] args = org.apache.commons.exec.CommandLine.parse(line).toStrings();
                 commandLine.execute(args);

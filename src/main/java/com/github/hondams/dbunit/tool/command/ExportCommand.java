@@ -1,5 +1,6 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.sql.Connection;
@@ -22,6 +23,9 @@ public class ExportCommand implements Callable<Integer> {
     @Option(names = {"-t", "--table"}, split = ",")
     String[] table;
 
+    @Option(names = {"-f", "--format"})
+    String format;
+
     @Option(names = {"-o", "--output"}, required = true)
     String output;
 
@@ -41,15 +45,14 @@ public class ExportCommand implements Callable<Integer> {
 
             File outputFile = new File(this.output);
             if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
-                boolean createdDirs = outputFile.getParentFile().mkdirs();
-                if (!createdDirs) {
-                    System.err.println(
+                boolean created = outputFile.getParentFile().mkdirs();
+                if (!created) {
+                    throw new IllegalStateException(
                         "Failed to create directories: " + outputFile.getParentFile());
-                    return -1;
                 }
             }
-            DbUnitUtils.save(inputDataSet, outputFile);
-            System.out.println("Exported to " + outputFile.getAbsolutePath());
+            DbUnitUtils.save(inputDataSet, outputFile, this.format);
+            ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
         }
         return 0;
     }

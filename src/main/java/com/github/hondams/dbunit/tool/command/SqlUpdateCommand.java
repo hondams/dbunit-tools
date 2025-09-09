@@ -1,5 +1,6 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.concurrent.Callable;
@@ -24,7 +25,7 @@ public class SqlUpdateCommand implements Callable<Integer> {
         try (Connection connection = this.dataSource.getConnection()) {
             try (Statement statement = connection.createStatement()) {
                 int result = statement.executeUpdate(this.sql);
-                System.out.println("Result: " + result);
+                ConsolePrinter.println("Result: " + result);
             }
         }
         return 0;
