@@ -1,5 +1,6 @@
-package com.github.hondams.dbunit.tool.util;
+package com.github.hondams.dbunit.tool.dbunit;
 
+import com.github.hondams.dbunit.tool.util.FileUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 import lombok.experimental.UtilityClass;
@@ -22,7 +24,6 @@ import org.dbunit.dataset.csv.CsvDataSetWriter;
 import org.dbunit.dataset.excel.XlsDataSet;
 import org.dbunit.dataset.excel.XlsDataSetWriter;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.dataset.xml.FlatXmlWriter;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.dataset.yaml.YamlDataSet;
 
@@ -253,8 +254,9 @@ public class DbUnitUtils {
     }
 
     public void saveXml(IDataSet dataSet, File file) {
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            XmlDataSet.write(dataSet, fos, "UTF-8");
+        try (Writer writer = new OutputStreamWriter(//
+            new FileOutputStream(file), StandardCharsets.UTF_8)) {
+            XmlDataSet.write(dataSet, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (DataSetException e) {
@@ -263,8 +265,9 @@ public class DbUnitUtils {
     }
 
     public void saveFlatXml(IDataSet dataSet, File file) {
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            FlatXmlWriter writer = new FlatXmlWriter(fos, "UTF-8");
+        try (Writer w = new OutputStreamWriter(//
+            new FileOutputStream(file), StandardCharsets.UTF_8)) {
+            BugFixedFlatXmlWriter writer = new BugFixedFlatXmlWriter(w);
             writer.setIncludeEmptyTable(true);
             writer.setPrettyPrint(true);
             writer.write(dataSet);
@@ -302,8 +305,8 @@ public class DbUnitUtils {
     }
 
     public void saveYaml(IDataSet dataSet, File file) {
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            Writer writer = new OutputStreamWriter(fos, java.nio.charset.StandardCharsets.UTF_8);
+        try (Writer writer = new OutputStreamWriter(//
+            new FileOutputStream(file), StandardCharsets.UTF_8)) {
             YamlDataSet.write(dataSet, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

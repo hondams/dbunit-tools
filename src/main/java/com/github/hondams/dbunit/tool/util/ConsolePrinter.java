@@ -1,15 +1,19 @@
 package com.github.hondams.dbunit.tool.util;
 
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
+import org.slf4j.spi.LocationAwareLogger;
 
 @UtilityClass
-@Slf4j
 public class ConsolePrinter {
+
+    private static final LocationAwareLogger logger = (LocationAwareLogger) LoggerFactory.getLogger(
+        ConsolePrinter.class);
+    private static final String FQCN = ConsolePrinter.class.getName();
 
     public void println(String message) {
         System.out.println(message);
-        log.info(message);
+        logger.log(null, FQCN, LocationAwareLogger.INFO_INT, message, null, null);
     }
 
     public void printPrompt() {
@@ -17,6 +21,11 @@ public class ConsolePrinter {
     }
 
     public void printInput(String input) {
-        log.info("> " + input);
+        logger.log(null, FQCN, LocationAwareLogger.INFO_INT, "> " + input, null, null);
+    }
+
+    public void printError(String message, Throwable t) {
+        t.printStackTrace(System.err);
+        logger.log(null, FQCN, LocationAwareLogger.ERROR_INT, message, null, t);
     }
 }

@@ -28,11 +28,11 @@ public class SqlQueryCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        List<String> header = new ArrayList<>();
-        List<PrintLineAlignment> alignments = new ArrayList<>();
-        List<List<String>> rows = new ArrayList<>();
-
         try (Connection connection = this.dataSource.getConnection()) {
+            List<String> header = new ArrayList<>();
+            List<PrintLineAlignment> alignments = new ArrayList<>();
+            List<List<String>> rows = new ArrayList<>();
+
             try (Statement statement = connection.createStatement()) {
                 try (ResultSet resultSet = statement.executeQuery(this.sql)) {
                     ResultSetMetaData metaData = resultSet.getMetaData();
@@ -64,13 +64,20 @@ public class SqlQueryCommand implements Callable<Integer> {
                     }
                 }
             }
-        }
 
-        List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
-        for (String line : lines) {
-            ConsolePrinter.println(line);
+            if (header.isEmpty()) {
+                ConsolePrinter.println("The query did not return any columns. rows=" + rows.size());
+            } else {
+                List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
+                for (String line : lines) {
+                    ConsolePrinter.println(line);
+                }
+            }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
     }
 
     private String toString(Object obj) {

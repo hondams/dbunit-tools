@@ -1,8 +1,8 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.dbunit.DatabaseConnectionFactory;
+import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
-import com.github.hondams.dbunit.tool.util.DatabaseConnectionFactory;
-import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.sql.Connection;
 import java.util.concurrent.Callable;
@@ -48,8 +48,10 @@ public class ImportCommand implements Callable<Integer> {
             } finally {
                 connection.setAutoCommit(oldAutoCommit);
             }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
-
     }
 }

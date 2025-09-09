@@ -19,17 +19,18 @@ import picocli.CommandLine.Command;
 @Component
 public class DbDefSchemaCommand implements Callable<Integer> {
 
+    private static final List<String> HEADER = List.of(//
+        "Catalog", "Schema");
+    private static final List<PrintLineAlignment> ALIGNMENTS = List.of(//
+        PrintLineAlignment.LEFT, PrintLineAlignment.LEFT);
+
     @Autowired
     DataSource dataSource;
 
     @Override
     public Integer call() throws Exception {
-        List<String> header = List.of(//
-            "Catalog", "Schema");
-        List<PrintLineAlignment> alignments = List.of(//
-            PrintLineAlignment.LEFT, PrintLineAlignment.LEFT);
-        List<List<String>> rows = new ArrayList<>();
         try (Connection connection = this.dataSource.getConnection()) {
+            List<List<String>> rows = new ArrayList<>();
             List<SchemaDefinition> schemas = DatabaseUtils.getAllSchemas(connection);
             for (SchemaDefinition schema : schemas) {
                 String catalogName = schema.getCatalogName();
@@ -42,11 +43,14 @@ public class DbDefSchemaCommand implements Callable<Integer> {
                 }
                 rows.add(List.of(catalogName, schemaName));
             }
+            List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS, rows);
+            for (String line : lines) {
+                ConsolePrinter.println(line);
+            }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
-        for (String line : lines) {
-            ConsolePrinter.println(line);
-        }
-        return 0;
     }
 }

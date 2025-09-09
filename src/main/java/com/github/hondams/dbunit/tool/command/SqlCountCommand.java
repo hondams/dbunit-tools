@@ -22,6 +22,14 @@ import picocli.CommandLine.Option;
 @Component
 public class SqlCountCommand implements Callable<Integer> {
 
+    private static final List<String> HEADER = List.of(//
+        "Table",//
+        "Count");
+
+    private static final List<PrintLineAlignment> ALIGNMENTS = List.of(//
+        PrintLineAlignment.LEFT,//
+        PrintLineAlignment.RIGHT);
+
     @Option(names = {"-t", "--table"}, split = ",")
     String[] table;
 
@@ -30,17 +38,10 @@ public class SqlCountCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        List<String> header = new ArrayList<>();
-        header.add("Table");
-        header.add("Count");
-
-        List<PrintLineAlignment> alignments = new ArrayList<>();
-        alignments.add(PrintLineAlignment.LEFT);
-        alignments.add(PrintLineAlignment.RIGHT);
-
-        List<List<String>> rows = new ArrayList<>();
-
         try (Connection connection = this.dataSource.getConnection()) {
+
+            List<List<String>> rows = new ArrayList<>();
+
             try (Statement statement = connection.createStatement()) {
                 List<TableDefinition> tableDefinitions;
                 if (this.table == null || this.table.length == 0) {
@@ -64,12 +65,15 @@ public class SqlCountCommand implements Callable<Integer> {
                     }
                 }
             }
-        }
 
-        List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
-        for (String line : lines) {
-            ConsolePrinter.println(line);
+            List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS, rows);
+            for (String line : lines) {
+                ConsolePrinter.println(line);
+            }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
     }
 }

@@ -33,28 +33,30 @@ public class DbDefExportCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
-        if (tableKey == null) {
-            throw new IllegalStateException("Invalid table name: " + this.table);
-        }
-
-        DatabaseNode databaseNode;
         try (Connection connection = this.dataSource.getConnection()) {
-            databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKey.getCatalogName(),
-                tableKey.getSchemaName(), tableKey.getTableName());
-        }
-
-        File outputFile = new File(this.output);
-        if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
-            boolean createdDirs = outputFile.getParentFile().mkdirs();
-            if (!createdDirs) {
-                throw new IllegalStateException(
-                    "Failed to create directories: " + outputFile.getParentFile());
+            TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
+            if (tableKey == null) {
+                throw new IllegalStateException("Invalid table name: " + this.table);
             }
-        }
-        this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, databaseNode);
-        ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
 
-        return 0;
+            DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection,
+                tableKey.getCatalogName(), tableKey.getSchemaName(), tableKey.getTableName());
+
+            File outputFile = new File(this.output);
+            if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+                boolean createdDirs = outputFile.getParentFile().mkdirs();
+                if (!createdDirs) {
+                    throw new IllegalStateException(
+                        "Failed to create directories: " + outputFile.getParentFile());
+                }
+            }
+            this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, databaseNode);
+            ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
+
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
+        }
     }
 }

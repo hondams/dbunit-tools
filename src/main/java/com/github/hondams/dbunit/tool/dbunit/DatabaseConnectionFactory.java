@@ -1,4 +1,4 @@
-package com.github.hondams.dbunit.tool.util;
+package com.github.hondams.dbunit.tool.dbunit;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

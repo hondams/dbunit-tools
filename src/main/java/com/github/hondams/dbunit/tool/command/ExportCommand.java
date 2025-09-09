@@ -1,11 +1,11 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.dbunit.DatabaseConnectionFactory;
+import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
 import com.github.hondams.dbunit.tool.model.TableDefinition;
 import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
-import com.github.hondams.dbunit.tool.util.DatabaseConnectionFactory;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
-import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.sql.Connection;
 import java.util.List;
@@ -94,8 +94,11 @@ public class ExportCommand implements Callable<Integer> {
             }
             DbUnitUtils.save(inputDataSet, outputFile, this.format);
             ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
     }
 
     private boolean isExcluded(String tableName) {

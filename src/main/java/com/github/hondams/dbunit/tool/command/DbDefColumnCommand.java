@@ -25,6 +25,15 @@ import picocli.CommandLine.Parameters;
 @Component
 public class DbDefColumnCommand implements Callable<Integer> {
 
+    private static final List<String> HEADER = List.of(//
+        "ColumnName", "SqlTypeName", "TypeName",//
+        "ColumnSize", "DecimalDigits", "Nullable",//
+        "KeyIndex");
+    private static final List<PrintLineAlignment> ALIGNMENTS = List.of(//
+        PrintLineAlignment.LEFT, PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
+        PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
+        PrintLineAlignment.RIGHT);
+
     @Parameters(index = "0", description = "table", arity = "1")
     String table;
 
@@ -33,62 +42,56 @@ public class DbDefColumnCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        List<String> header = List.of(//
-            "ColumnName", "SqlTypeName", "TypeName",//
-            "ColumnSize", "DecimalDigits", "Nullable",//
-            "KeyIndex");
-        List<PrintLineAlignment> alignments = List.of(//
-            PrintLineAlignment.LEFT, PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
-            PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
-            PrintLineAlignment.RIGHT);
-
-        TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
-        if (tableKey == null) {
-            throw new IllegalStateException("Invalid table name: " + this.table);
-        }
-
-        DatabaseNode databaseNode;
         try (Connection connection = this.dataSource.getConnection()) {
-            databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKey.getCatalogName(),
-                tableKey.getSchemaName(), tableKey.getTableName());
-        }
 
-        if (databaseNode.getCatalogs().isEmpty()) {
-            throw new IllegalStateException("Table not found: " + this.table);
-        }
+            TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
+            if (tableKey == null) {
+                throw new IllegalStateException("Invalid table name: " + this.table);
+            }
 
-        for (CatalogNode catalogNode : databaseNode.getCatalogs()) {
-            for (SchemaNode schemaNode : catalogNode.getSchemas()) {
-                for (TableNode tableNode : schemaNode.getTables()) {
-                    List<List<String>> rows = new ArrayList<>();
+            DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection,
+                tableKey.getCatalogName(), tableKey.getSchemaName(), tableKey.getTableName());
 
-                    ConsolePrinter.println("Table: " + TableKey.toQualifiedTableName(//
-                        new TableKey(catalogNode.getCatalogName(),//
-                            schemaNode.getSchemaName(),//
-                            tableNode.getTableName())));
-                    for (ColumnNode columnNode : tableNode.getColumns()) {
-                        String columnName = columnNode.getColumnName();
-                        String sqlTypeName = columnNode.getSqlTypeName();
-                        String typeName = columnNode.getTypeName();
-                        String columnSize = String.valueOf(columnNode.getColumnSize());
-                        String decimalDigits = columnNode.getDecimalDigits() == null ? ""
-                            : String.valueOf(columnNode.getDecimalDigits());
-                        String nullable = columnNode.getNullable();
-                        String keyIndex = columnNode.getKeyIndex() == null ? ""
-                            : String.valueOf(columnNode.getKeyIndex());
+            if (databaseNode.getCatalogs().isEmpty()) {
+                throw new IllegalStateException("Table not found: " + this.table);
+            }
 
-                        rows.add(
-                            List.of(columnName, sqlTypeName, typeName, columnSize, decimalDigits,
-                                nullable, keyIndex));
+            for (CatalogNode catalogNode : databaseNode.getCatalogs()) {
+                for (SchemaNode schemaNode : catalogNode.getSchemas()) {
+                    for (TableNode tableNode : schemaNode.getTables()) {
+                        List<List<String>> rows = new ArrayList<>();
+
+                        ConsolePrinter.println("Table: " + TableKey.toQualifiedTableName(//
+                            new TableKey(catalogNode.getCatalogName(),//
+                                schemaNode.getSchemaName(),//
+                                tableNode.getTableName())));
+                        for (ColumnNode columnNode : tableNode.getColumns()) {
+                            String columnName = columnNode.getColumnName();
+                            String sqlTypeName = columnNode.getSqlTypeName();
+                            String typeName = columnNode.getTypeName();
+                            String columnSize = String.valueOf(columnNode.getColumnSize());
+                            String decimalDigits = columnNode.getDecimalDigits() == null ? ""
+                                : String.valueOf(columnNode.getDecimalDigits());
+                            String nullable = columnNode.getNullable();
+                            String keyIndex = columnNode.getKeyIndex() == null ? ""
+                                : String.valueOf(columnNode.getKeyIndex());
+
+                            rows.add(List.of(columnName, sqlTypeName, typeName, columnSize,
+                                decimalDigits, nullable, keyIndex));
+                        }
+                        List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS,
+                            rows);
+                        for (String line : lines) {
+                            ConsolePrinter.println(line);
+                        }
+                        ConsolePrinter.println("");
                     }
-                    List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
-                    for (String line : lines) {
-                        ConsolePrinter.println(line);
-                    }
-                    ConsolePrinter.println("");
                 }
             }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
     }
 }

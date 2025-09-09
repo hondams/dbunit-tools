@@ -28,24 +28,29 @@ public class BatchCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        Path path = Path.of(this.file);
-        ConsolePrinter.println("Start batch mode. file=" + path.toAbsolutePath());
+        try {
+            Path path = Path.of(this.file);
+            ConsolePrinter.println("Start batch mode. file=" + path.toAbsolutePath());
 
-        ConversationCommand conversationCommand = this.applicationContext.getBean(
-            ConversationCommand.class);
-        CommandLine commandLine = new CommandLine(conversationCommand, this.factory);
+            ConversationCommand conversationCommand = this.applicationContext.getBean(
+                ConversationCommand.class);
+            CommandLine commandLine = new CommandLine(conversationCommand, this.factory);
 
-        List<String> lines = Files.readAllLines(path);
-        for (String line : lines) {
-            ConsolePrinter.println("> " + line);
-            if (!line.trim().isEmpty() && !line.startsWith("#")) {
-                String[] args = org.apache.commons.exec.CommandLine.parse(line).toStrings();
-                commandLine.execute(args);
-                if ("exit".equals(line)) {
-                    break;
+            List<String> lines = Files.readAllLines(path);
+            for (String line : lines) {
+                ConsolePrinter.println("> " + line);
+                if (!line.trim().isEmpty() && !line.startsWith("#")) {
+                    String[] args = org.apache.commons.exec.CommandLine.parse(line).toStrings();
+                    commandLine.execute(args);
+                    if ("exit".equals(line)) {
+                        break;
+                    }
                 }
             }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
     }
 }

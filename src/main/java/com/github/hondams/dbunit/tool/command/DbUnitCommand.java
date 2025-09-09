@@ -27,30 +27,36 @@ public class DbUnitCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        ConsolePrinter.println("Start conversation mode.");
-        ConsolePrinter.println(" Use '-h' option to see usage.");
-        ConsolePrinter.println(" Input 'exit' to exit.");
-        ConversationCommand conversationCommand = this.applicationContext.getBean(
-            ConversationCommand.class);
-        CommandLine commandLine = new CommandLine(conversationCommand, this.factory);
-        boolean exit = false;
-        try (Scanner scanner = new Scanner(System.in)) {
-            while (!exit) {
-                ConsolePrinter.printPrompt();
-                String line = scanner.nextLine();
-                ConsolePrinter.printInput(line);
-                if (line.trim().isEmpty()) {
-                    commandLine.usage(System.out);
-                } else {
-                    String[] args = getArgs(line);
-                    commandLine.execute(args);
-                    if ("exit".equals(line)) {
-                        exit = true;
+
+        try {
+            ConsolePrinter.println("Start conversation mode.");
+            ConsolePrinter.println(" Use '-h' option to see usage.");
+            ConsolePrinter.println(" Input 'exit' to exit.");
+            ConversationCommand conversationCommand = this.applicationContext.getBean(
+                ConversationCommand.class);
+            CommandLine commandLine = new CommandLine(conversationCommand, this.factory);
+            boolean exit = false;
+            try (Scanner scanner = new Scanner(System.in, "Windows-31J")) {
+                while (!exit) {
+                    ConsolePrinter.printPrompt();
+                    String line = scanner.nextLine();
+                    ConsolePrinter.printInput(line);
+                    if (line.trim().isEmpty()) {
+                        commandLine.usage(System.out);
+                    } else {
+                        String[] args = getArgs(line);
+                        commandLine.execute(args);
+                        if ("exit".equals(line)) {
+                            exit = true;
+                        }
                     }
                 }
             }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
     }
 
     private String[] getArgs(String line) {

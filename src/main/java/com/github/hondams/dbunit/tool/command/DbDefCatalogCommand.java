@@ -19,18 +19,19 @@ import picocli.CommandLine.Command;
 @Component
 public class DbDefCatalogCommand implements Callable<Integer> {
 
+    private static final List<String> HEADER = List.of(//
+        "Catalog");
+    private static final List<PrintLineAlignment> ALIGNMENTS = List.of(//
+        PrintLineAlignment.LEFT);
+
     @Autowired
     DataSource dataSource;
 
     @Override
     public Integer call() throws Exception {
 
-        List<String> header = List.of(//
-            "Catalog");
-        List<PrintLineAlignment> alignments = List.of(//
-            PrintLineAlignment.LEFT);
-        List<List<String>> rows = new ArrayList<>();
         try (Connection connection = this.dataSource.getConnection()) {
+            List<List<String>> rows = new ArrayList<>();
             List<CatalogDefinition> catalogs = DatabaseUtils.getAllCatalogs(connection);
             for (CatalogDefinition catalog : catalogs) {
                 String catalogName = catalog.getCatalogName();
@@ -39,11 +40,14 @@ public class DbDefCatalogCommand implements Callable<Integer> {
                 }
                 rows.add(List.of(catalogName));
             }
+            List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS, rows);
+            for (String line : lines) {
+                ConsolePrinter.println(line);
+            }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
-        for (String line : lines) {
-            ConsolePrinter.println(line);
-        }
-        return 0;
     }
 }

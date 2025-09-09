@@ -27,7 +27,10 @@ public class SqlUpdateCommand implements Callable<Integer> {
                 int result = statement.executeUpdate(this.sql);
                 ConsolePrinter.println("Result: " + result);
             }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        return 0;
     }
 }

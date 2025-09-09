@@ -21,6 +21,13 @@ import picocli.CommandLine.Option;
 @Component
 public class DbDefTableCommand implements Callable<Integer> {
 
+    private static final List<String> HEADER = List.of(//
+        "Catalog", "Schema",//
+        "Table", "TableType");
+    private static final List<PrintLineAlignment> ALIGNMENTS = List.of(//
+        PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
+        PrintLineAlignment.LEFT, PrintLineAlignment.LEFT);
+
     @Option(names = {"-t", "--table"})
     String table;
 
@@ -29,25 +36,20 @@ public class DbDefTableCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        List<String> header = List.of(//
-            "Catalog", "Schema",//
-            "Table", "TableType");
-        List<PrintLineAlignment> alignments = List.of(//
-            PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
-            PrintLineAlignment.LEFT, PrintLineAlignment.LEFT);
-
-        TableKey tableKey;
-        if (this.table == null) {
-            tableKey = TableKey.fromQualifiedTableName("%");
-        } else {
-            tableKey = TableKey.fromQualifiedTableName(this.table);
-        }
-        if (tableKey == null) {
-            throw new IllegalStateException("Invalid table name: " + this.table);
-        }
-
-        List<List<String>> rows = new ArrayList<>();
         try (Connection connection = this.dataSource.getConnection()) {
+
+            TableKey tableKey;
+            if (this.table == null) {
+                tableKey = TableKey.fromQualifiedTableName("%");
+            } else {
+                tableKey = TableKey.fromQualifiedTableName(this.table);
+            }
+            if (tableKey == null) {
+                throw new IllegalStateException("Invalid table name: " + this.table);
+            }
+
+            List<List<String>> rows = new ArrayList<>();
+
             List<TableDefinition> tables = DatabaseUtils.getTables(connection,
                 tableKey.getCatalogName(), tableKey.getSchemaName(), tableKey.getTableName());
             for (TableDefinition table : tables) {
@@ -63,11 +65,15 @@ public class DbDefTableCommand implements Callable<Integer> {
                 String tableType = table.getTableType();
                 rows.add(List.of(catalogName, schemaName, tableName, tableType));
             }
+
+            List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS, rows);
+            for (String line : lines) {
+                ConsolePrinter.println(line);
+            }
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            return 1;
         }
-        List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
-        for (String line : lines) {
-            ConsolePrinter.println(line);
-        }
-        return 0;
     }
 }

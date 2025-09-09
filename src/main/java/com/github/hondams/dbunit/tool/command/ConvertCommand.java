@@ -1,7 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
-import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
