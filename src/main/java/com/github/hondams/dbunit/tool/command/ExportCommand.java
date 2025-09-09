@@ -29,6 +29,9 @@ public class ExportCommand implements Callable<Integer> {
     @Option(names = {"-t", "--table"}, split = ",")
     String[] table;
 
+    @Option(names = {"-e", "--exclude"}, split = ",")
+    String[] exclude;
+
     @Option(names = {"-f", "--format"})
     String format;
 
@@ -44,16 +47,25 @@ public class ExportCommand implements Callable<Integer> {
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                 this.scheme);
             IDataSet inputDataSet;
-            if (this.table == null || this.table.length == 0) {
+            if ((this.table == null || this.table.length == 0)//
+                && (this.exclude == null || this.exclude.length == 0)) {
                 inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection);
             } else {
-                List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
+                List<String> includeTableNames;
+                if (this.table == null) {
+                    includeTableNames = List.of("%");
+                } else {
+                    includeTableNames = List.of(this.table);
+                }
+                List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(includeTableNames);
                 List<TableDefinition> tableDefinitions = DatabaseUtils.getTables(connection,
                     tableKeys);
                 List<String> tableNames = new ArrayList<>();
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     if (this.scheme.equalsIgnoreCase(tableDefinition.getSchemaName())) {
-                        tableNames.add(tableDefinition.getTableName());
+                        if (!isExcluded(tableDefinition.getTableName())) {
+                            tableNames.add(tableDefinition.getTableName());
+                        }
                     }
                 }
                 inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection,
@@ -72,5 +84,16 @@ public class ExportCommand implements Callable<Integer> {
             ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
         }
         return 0;
+    }
+
+    private boolean isExcluded(String tableName) {
+        if (this.exclude != null) {
+            for (String ex : this.exclude) {
+                if (ex.equalsIgnoreCase(tableName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
