@@ -42,28 +42,16 @@ public class SqlCountCommand implements Callable<Integer> {
 
         try (Connection connection = this.dataSource.getConnection()) {
             try (Statement statement = connection.createStatement()) {
-                List<TableKey> tableKeys = new ArrayList<>();
-
+                List<TableDefinition> tableDefinitions;
                 if (this.table == null || this.table.length == 0) {
-                    List<TableDefinition> tableDefinitions = DatabaseUtils.getAllTables(connection);
-                    for (TableDefinition tableDefinition : tableDefinitions) {
-                        tableKeys.add(TableKey.fromTableDefinition(tableDefinition));
-                    }
+                    tableDefinitions = DatabaseUtils.getAllTables(connection);
                 } else {
-                    for (String tbl : this.table) {
-                        TableKey key = TableKey.fromQualifiedTableName(tbl);
-                        if (key == null) {
-                            System.out.println("Invalid table name: " + tbl);
-                            return -1;
-                        }
-                        List<TableDefinition> tableDefinitions = DatabaseUtils.getTables(connection,
-                            key.getCatalogName(), key.getSchemaName(), key.getTableName());
-                        for (TableDefinition tableDefinition : tableDefinitions) {
-                            tableKeys.add(TableKey.fromTableDefinition(tableDefinition));
-                        }
-                    }
+                    List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(
+                        List.of(this.table));
+                    tableDefinitions = DatabaseUtils.getTables(connection, tableKeys);
                 }
-                for (TableKey tableKey : tableKeys) {
+                for (TableDefinition tableDefinition : tableDefinitions) {
+                    TableKey tableKey = TableKey.fromTableDefinition(tableDefinition);
                     String tableName = TableKey.toQualifiedTableName(tableKey);
                     String sql = "SELECT COUNT(*) FROM " + tableName;
                     try (ResultSet resultSet = statement.executeQuery(sql)) {

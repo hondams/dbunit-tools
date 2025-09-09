@@ -1,9 +1,15 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.model.TableDefinition;
+import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import com.github.hondams.dbunit.tool.util.DatabaseConnectionFactory;
+import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConnection;
@@ -17,7 +23,7 @@ import picocli.CommandLine.Option;
 @Component
 public class ExportCommand implements Callable<Integer> {
 
-    @Option(names = {"-s", "--scheme"})
+    @Option(names = {"-s", "--scheme"}, required = true)
     String scheme;
 
     @Option(names = {"-t", "--table"}, split = ",")
@@ -35,12 +41,23 @@ public class ExportCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
-            DatabaseConnection databaseConnection = new DatabaseConnection(connection, this.scheme);
+            DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
+                this.scheme);
             IDataSet inputDataSet;
             if (this.table == null || this.table.length == 0) {
                 inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection);
             } else {
-                inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection, this.table);
+                List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
+                List<TableDefinition> tableDefinitions = DatabaseUtils.getTables(connection,
+                    tableKeys);
+                List<String> tableNames = new ArrayList<>();
+                for (TableDefinition tableDefinition : tableDefinitions) {
+                    if (this.scheme.equalsIgnoreCase(tableDefinition.getSchemaName())) {
+                        tableNames.add(tableDefinition.getTableName());
+                    }
+                }
+                inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection,
+                    tableNames.toArray(new String[0]));
             }
 
             File outputFile = new File(this.output);

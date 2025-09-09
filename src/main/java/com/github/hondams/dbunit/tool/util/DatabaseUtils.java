@@ -166,6 +166,22 @@ public class DatabaseUtils {
         return getTables(connection, null, null, "%");
     }
 
+
+    public List<TableDefinition> getTables(Connection connection, List<TableKey> tableKeys)
+        throws SQLException {
+        List<TableDefinition> allTables = new ArrayList<>();
+        for (TableKey tableKey : tableKeys) {
+            allTables.addAll(getTables(connection, tableKey));
+        }
+        return allTables;
+    }
+
+    public List<TableDefinition> getTables(Connection connection, TableKey tableKey)
+        throws SQLException {
+        return getTables(connection, tableKey.getCatalogName(), tableKey.getSchemaName(),
+            tableKey.getTableName());
+    }
+
     public List<TableDefinition> getTables(Connection connection, String catalog,
         String schemaPattern, String tableNamePattern) throws SQLException {
         List<TableDefinition> tables = new ArrayList<>();

@@ -1,5 +1,7 @@
 package com.github.hondams.dbunit.tool.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Value;
 
 @Value
@@ -28,6 +30,18 @@ public class TableKey {
                 return tableKey.getTableName();
             }
         }
+    }
+
+    public static List<TableKey> fromQualifiedTableNames(List<String> qualifiedTableNames) {
+        List<TableKey> tableKeys = new ArrayList<>();
+        for (String qualifiedTableName : qualifiedTableNames) {
+            TableKey tableKey = fromQualifiedTableName(qualifiedTableName);
+            if (tableKey == null) {
+                throw new IllegalStateException("Invalid table name: " + qualifiedTableName);
+            }
+            tableKeys.add(tableKey);
+        }
+        return tableKeys;
     }
 
     public static TableKey fromQualifiedTableName(String qualifiedTableName) {

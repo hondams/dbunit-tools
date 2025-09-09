@@ -61,9 +61,11 @@ public class DbDefColumnCommand implements Callable<Integer> {
             for (SchemaNode schemaNode : catalogNode.getSchemas()) {
                 for (TableNode tableNode : schemaNode.getTables()) {
                     List<List<String>> rows = new ArrayList<>();
-                    ConsolePrinter.println("Table: " + catalogNode.getCatalogName()//
-                        + "." + schemaNode.getSchemaName()//
-                        + "." + tableNode.getTableName());
+
+                    ConsolePrinter.println("Table: " + TableKey.toQualifiedTableName(//
+                        new TableKey(catalogNode.getCatalogName(),//
+                            schemaNode.getSchemaName(),//
+                            tableNode.getTableName())));
                     for (ColumnNode columnNode : tableNode.getColumns()) {
                         String columnName = columnNode.getColumnName();
                         String sqlTypeName = columnNode.getSqlTypeName();
