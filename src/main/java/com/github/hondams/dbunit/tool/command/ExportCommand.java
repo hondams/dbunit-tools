@@ -1,6 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import com.github.hondams.dbunit.tool.util.DatabaseConnectionFactory;
 import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.sql.Connection;
@@ -35,7 +36,8 @@ public class ExportCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
-            DatabaseConnection databaseConnection = new DatabaseConnection(connection, this.scheme);
+            DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
+                this.scheme);
             IDataSet inputDataSet;
             if (this.table == null || this.table.length == 0) {
                 inputDataSet = DbUnitUtils.createDatabaseDataSet(databaseConnection);

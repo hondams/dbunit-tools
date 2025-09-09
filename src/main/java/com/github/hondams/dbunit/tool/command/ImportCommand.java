@@ -1,6 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import com.github.hondams.dbunit.tool.util.DatabaseConnectionFactory;
 import com.github.hondams.dbunit.tool.util.DbUnitUtils;
 import java.io.File;
 import java.sql.Connection;
@@ -36,7 +37,7 @@ public class ImportCommand implements Callable<Integer> {
             boolean oldAutoCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
             try {
-                DatabaseConnection databaseConnection = new DatabaseConnection(connection,
+                DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                     this.scheme);
                 DatabaseOperation.CLEAN_INSERT.execute(databaseConnection, inputDataSet);
                 ConsolePrinter.println("Imported from " + inputFile.getAbsolutePath());
