@@ -5,13 +5,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dbunit.DatabaseUnitException;
@@ -21,13 +24,19 @@ import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.csv.CsvDataSet;
 import org.dbunit.dataset.csv.CsvDataSetWriter;
+import org.dbunit.dataset.csv.CsvProducer;
 import org.dbunit.dataset.excel.XlsDataSet;
 import org.dbunit.dataset.excel.XlsDataSetWriter;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import org.dbunit.dataset.xml.FlatXmlProducer;
 import org.dbunit.dataset.xml.XmlDataSet;
+import org.dbunit.dataset.xml.XmlProducer;
 import org.dbunit.dataset.yaml.YamlDataSet;
+import org.dbunit.dataset.yaml.YamlProducer;
+import org.xml.sax.InputSource;
 
 @UtilityClass
+@Slf4j
 public class DbUnitUtils {
 
     //    public IDataSet createEmptyDataSet(Connection connection, String schemaName, String tableName) {
@@ -106,6 +115,34 @@ public class DbUnitUtils {
         }
     }
 
+
+    public IDataSet loadStreaming(File file) {
+        String extension = FileUtils.getFileExtension(file);
+        if ("xml".equalsIgnoreCase(extension)) {
+            try {
+                return loadStreamingFlatXml(file);
+            } catch (Exception e) {
+                return loadStreamingXml(file);
+            }
+        } else if ("flatxml".equalsIgnoreCase(extension)) {
+            return loadStreamingFlatXml(file);
+        } else if ("xls".equalsIgnoreCase(extension) || "xlsx".equalsIgnoreCase(extension)) {
+            return loadXls(file);
+        } else if ("yaml".equalsIgnoreCase(extension) || "yml".equalsIgnoreCase(extension)) {
+            return loadStreamingYaml(file);
+        } else if (file.isDirectory()) {
+            File tableOrderingFile = new File(file, CsvDataSet.TABLE_ORDERING_FILE);
+            if (!tableOrderingFile.exists()) {
+                throw new IllegalArgumentException(
+                    "When input is directory, it must contain " + CsvDataSet.TABLE_ORDERING_FILE
+                        + ": " + file.getAbsolutePath());
+            }
+            return loadStreamingCsv(file);
+        } else {
+            throw new IllegalArgumentException("Unsupported file extension: " + extension);
+        }
+    }
+
     public IDataSet loadXml(File file) {
         try (FileInputStream fis = new FileInputStream(file)) {
             return new XmlDataSet(fis);
@@ -114,6 +151,63 @@ public class DbUnitUtils {
         } catch (DataSetException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public IDataSet loadStreamingFlatXml(File file) {
+        return new ReCallableStreamingDataSet(() -> {
+            try {
+                Reader reeder = new InputStreamReader(new FileInputStream(file),
+                    StandardCharsets.UTF_8);
+                InputSource inputSource = new InputSource(reeder);
+                FlatXmlProducer producer = new FlatXmlProducer(inputSource);
+                producer.setColumnSensing(true);
+                return new ClosableDataSetProducer(producer, () -> {
+                    try {
+                        reeder.close();
+                    } catch (IOException e) {
+                        log.debug("Failed to close reader", e);
+                    }
+                });
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
+        });
+    }
+
+    public IDataSet loadStreamingYaml(File file) {
+        return new ReCallableStreamingDataSet(() -> {
+            try {
+                return new YamlProducer(file);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    public IDataSet loadStreamingXml(File file) {
+        return new ReCallableStreamingDataSet(() -> {
+            try {
+                Reader reeder = new InputStreamReader(new FileInputStream(file),
+                    StandardCharsets.UTF_8);
+                InputSource inputSource = new InputSource(reeder);
+                XmlProducer producer = new XmlProducer(inputSource);
+                return new ClosableDataSetProducer(producer, () -> {
+                    try {
+                        reeder.close();
+                    } catch (IOException e) {
+                        log.debug("Failed to close reader", e);
+                    }
+                });
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
+        });
+    }
+
+    public IDataSet loadStreamingCsv(File file) {
+        return new ReCallableStreamingDataSet(() -> new CsvProducer(file));
     }
 
     public IDataSet loadFlatXml(File file) {

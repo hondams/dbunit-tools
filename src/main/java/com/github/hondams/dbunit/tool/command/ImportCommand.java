@@ -9,6 +9,8 @@ import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.operation.ChunkInsertOperation;
+import org.dbunit.operation.CompositeOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,8 @@ import picocli.CommandLine.Option;
 @Component
 public class ImportCommand implements Callable<Integer> {
 
+    private DatabaseOperation importOperation = new CompositeOperation(
+        DatabaseOperation.TRUNCATE_TABLE, ChunkInsertOperation.CHUNK_INSERT);
     @Option(names = {"-s", "--scheme"})
     String scheme;
 
@@ -32,14 +36,14 @@ public class ImportCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
             File inputFile = new File(this.input);
-            IDataSet inputDataSet = DbUnitUtils.load(inputFile);
+            IDataSet inputDataSet = DbUnitUtils.loadStreaming(inputFile);
 
             boolean oldAutoCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
             try {
                 DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                     this.scheme);
-                DatabaseOperation.CLEAN_INSERT.execute(databaseConnection, inputDataSet);
+                this.importOperation.execute(databaseConnection, inputDataSet);
                 ConsolePrinter.println("Imported from " + inputFile.getAbsolutePath());
                 connection.commit();
             } catch (Exception e) {

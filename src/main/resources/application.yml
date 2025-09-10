@@ -16,5 +16,6 @@ logging:
     name: logs/${spring.application.name}.log
   level:
     root: INFO
+  #    org.dbunit: DEBUG
   console:
     enabled: false
