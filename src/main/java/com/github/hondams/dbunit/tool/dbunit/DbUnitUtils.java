@@ -27,7 +27,6 @@ import org.dbunit.dataset.csv.CsvDataSetWriter;
 import org.dbunit.dataset.csv.CsvProducer;
 import org.dbunit.dataset.excel.XlsDataSet;
 import org.dbunit.dataset.excel.XlsDataSetWriter;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.dataset.xml.FlatXmlProducer;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.dataset.xml.XmlProducer;
@@ -212,8 +211,7 @@ public class DbUnitUtils {
 
     public IDataSet loadFlatXml(File file) {
         try {
-            // TODO:BugFixedFlatXmlDataSetBuilder
-            FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
+            BugFixedFlatXmlDataSetBuilder builder = new BugFixedFlatXmlDataSetBuilder();
             builder.setColumnSensing(true);
             return builder.build(file);
         } catch (IOException e) {
