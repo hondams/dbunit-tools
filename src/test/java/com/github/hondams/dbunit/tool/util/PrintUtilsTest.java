@@ -9,6 +9,5 @@ public class PrintUtilsTest {
         System.out.println(
             "12345678901234567890123456789012345678901234567890123456789012345678901234567890");
         System.out.println("\tabc");
-        System.out.println("\u0000");
     }
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class ColumnNode {
 
+    private int location;
     private String columnName;
     private String sqlTypeName;
 

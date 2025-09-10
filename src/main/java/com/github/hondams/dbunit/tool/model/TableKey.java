@@ -1,11 +1,17 @@
 package com.github.hondams.dbunit.tool.model;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.Value;
 
 @Value
 public class TableKey {
+
+    public static final Comparator<TableKey> COMPARATOR = Comparator//
+        .comparing(TableKey::getCatalogName, Comparator.nullsFirst(String::compareTo))//
+        .thenComparing(TableKey::getSchemaName, Comparator.nullsFirst(String::compareTo))//
+        .thenComparing(TableKey::getTableName);
 
     String catalogName;
     String schemaName;

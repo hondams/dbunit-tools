@@ -40,6 +40,8 @@ public class DatabaseNodeBuilder {
 
         TableKey tableKey = TableKey.fromColumnDefinition(column);
         TableNode table = getTableNode(tableKey);
+
+        node.setLocation(table.getColumns().size() + 1);
         table.getColumns().add(node);
     }
 

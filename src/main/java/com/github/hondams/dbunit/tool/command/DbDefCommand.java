@@ -11,7 +11,7 @@ import picocli.CommandLine.IFactory;
 @Command(name = "dbdef",//
     description = "Print database definition information",//
     subcommands = {DbDefCatalogCommand.class, DbDefSchemaCommand.class, DbDefTableCommand.class,
-        DbDefColumnCommand.class, DbDefExportCommand.class})
+        DbDefColumnCommand.class, DbDefExportCommand.class, DbDefDiffCommand.class})
 @Component
 @Slf4j
 public class DbDefCommand implements Callable<Integer> {
