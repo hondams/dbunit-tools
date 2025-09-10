@@ -126,6 +126,7 @@ public class ChunkInsertOperation extends InsertOperation {
                             statement.executeBatch();
                             statement.clearBatch();
                             connection.getConnection().commit();
+                            uncommited = false;
                         }
                     }
                 } catch (RowOutOfBoundsException e) {

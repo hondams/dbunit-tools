@@ -9,8 +9,6 @@ import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
-import org.dbunit.operation.ChunkInsertOperation;
-import org.dbunit.operation.CompositeOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,8 +19,9 @@ import picocli.CommandLine.Option;
 @Component
 public class ImportCommand implements Callable<Integer> {
 
-    private DatabaseOperation importOperation = new CompositeOperation(
-        DatabaseOperation.TRUNCATE_TABLE, ChunkInsertOperation.CHUNK_INSERT);
+    //    private DatabaseOperation importOperation = new CompositeOperation(
+    //        DatabaseOperation.TRUNCATE_TABLE, ChunkInsertOperation.CHUNK_INSERT);
+    private DatabaseOperation importOperation = DatabaseOperation.CLEAN_INSERT;
     @Option(names = {"-s", "--scheme"})
     String scheme;
 
