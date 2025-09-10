@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
@@ -18,6 +19,7 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "query", description = "Execute SQL query command")
 @Component
+@Slf4j
 public class SqlQueryCommand implements Callable<Integer> {
 
     @Parameters(index = "0", description = "sql", arity = "1")
@@ -66,16 +68,17 @@ public class SqlQueryCommand implements Callable<Integer> {
             }
 
             if (header.isEmpty()) {
-                ConsolePrinter.println("The query did not return any columns. rows=" + rows.size());
+                ConsolePrinter.println(log,
+                    "The query did not return any columns. rows=" + rows.size());
             } else {
                 List<String> lines = PrintLineUtils.getTableLines("", header, alignments, rows);
                 for (String line : lines) {
-                    ConsolePrinter.println(line);
+                    ConsolePrinter.println(log, line);
                 }
             }
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
     }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
@@ -20,6 +21,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "count", description = "Count rows in specified tables")
 @Component
+@Slf4j
 public class SqlCountCommand implements Callable<Integer> {
 
     private static final List<String> HEADER = List.of(//
@@ -68,11 +70,11 @@ public class SqlCountCommand implements Callable<Integer> {
 
             List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS, rows);
             for (String line : lines) {
-                ConsolePrinter.println(line);
+                ConsolePrinter.println(log, line);
             }
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
     }

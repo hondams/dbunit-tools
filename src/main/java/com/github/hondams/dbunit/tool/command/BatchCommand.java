@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "batch", description = "Execute commands from a file")
 @Component
+@Slf4j
 public class BatchCommand implements Callable<Integer> {
 
     // picocliのCommandには、デフォルトコンストラクタが必要のため、@Autowiredを利用する
@@ -30,7 +32,7 @@ public class BatchCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         try {
             Path path = Path.of(this.file);
-            ConsolePrinter.println("Start batch mode. file=" + path.toAbsolutePath());
+            ConsolePrinter.println(log, "Start batch mode. file=" + path.toAbsolutePath());
 
             ConversationCommand conversationCommand = this.applicationContext.getBean(
                 ConversationCommand.class);
@@ -38,7 +40,7 @@ public class BatchCommand implements Callable<Integer> {
 
             List<String> lines = Files.readAllLines(path);
             for (String line : lines) {
-                ConsolePrinter.println("> " + line);
+                ConsolePrinter.println(log, "> " + line);
                 if (!line.trim().isEmpty() && !line.startsWith("#")) {
                     String[] args = org.apache.commons.exec.CommandLine.parse(line).toStrings();
                     commandLine.execute(args);
@@ -49,7 +51,7 @@ public class BatchCommand implements Callable<Integer> {
             }
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
     }

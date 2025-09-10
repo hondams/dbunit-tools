@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
@@ -25,6 +26,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "diff", description = "Compare two database definition files")
 @Component
+@Slf4j
 public class DbDefDiffCommand implements Callable<Integer> {
 
     private static final List<String> TABLE_DIFF_HEADER = List.of(//
@@ -104,7 +106,7 @@ public class DbDefDiffCommand implements Callable<Integer> {
 
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
     }
@@ -133,9 +135,9 @@ public class DbDefDiffCommand implements Callable<Integer> {
         List<String> lines = PrintLineUtils.getTableLines("", TABLE_DIFF_HEADER,
             TABLE_DIFF_ALIGNMENTS, rows);
         for (String line : lines) {
-            ConsolePrinter.println(line);
+            ConsolePrinter.println(log, line);
         }
-        ConsolePrinter.println("");
+        ConsolePrinter.println(log, "");
     }
 
     private void printColumnDiff(Map<TableKey, TableNode[]> tableMap) {
@@ -219,14 +221,14 @@ public class DbDefDiffCommand implements Callable<Integer> {
                 }
             }
             String tableName = TableKey.toQualifiedTableName(tableKey);
-            ConsolePrinter.println("Table: " + tableName);
+            ConsolePrinter.println(log, "Table: " + tableName);
 
             List<String> lines = PrintLineUtils.getTableLines("", COLUMN_DIFF_HEADER,
                 COLUMN_DIFF_ALIGNMENTS, rows);
             for (String line : lines) {
-                ConsolePrinter.println(line);
+                ConsolePrinter.println(log, line);
             }
-            ConsolePrinter.println("");
+            ConsolePrinter.println(log, "");
         }
     }
 }

@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import lombok.extern.slf4j.Slf4j;
 import org.dbunit.dataset.IDataSet;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
@@ -13,6 +14,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "convert", description = "Convert or merge data file format")
 @Component
+@Slf4j
 public class ConvertCommand implements Callable<Integer> {
 
     @Option(names = {"-i", "--input"}, split = ",", required = true)
@@ -45,9 +47,9 @@ public class ConvertCommand implements Callable<Integer> {
         }
         DbUnitUtils.save(mergedDataSet, outputFile, this.format);
         if (dataSets.size() == 1) {
-            ConsolePrinter.println("Converted to " + outputFile.getAbsolutePath());
+            ConsolePrinter.println(log, "Converted to " + outputFile.getAbsolutePath());
         } else {
-            ConsolePrinter.println("Merged to " + outputFile.getAbsolutePath());
+            ConsolePrinter.println(log, "Merged to " + outputFile.getAbsolutePath());
         }
         return 0;
     }

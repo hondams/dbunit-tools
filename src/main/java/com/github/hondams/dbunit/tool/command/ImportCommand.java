@@ -7,6 +7,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.operation.DatabaseOperation;
@@ -17,6 +18,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "import", description = "Import data from file to database")
 @Component
+@Slf4j
 public class ImportCommand implements Callable<Integer> {
 
     //    private DatabaseOperation importOperation = new CompositeOperation(
@@ -43,7 +45,7 @@ public class ImportCommand implements Callable<Integer> {
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                 this.scheme);
             this.importOperation.execute(databaseConnection, inputDataSet);
-            ConsolePrinter.println("Imported from " + inputFile.getAbsolutePath());
+            ConsolePrinter.println(log, "Imported from " + inputFile.getAbsolutePath());
             //                connection.commit();
             //            } catch (Exception e) {
             //                connection.rollback();
@@ -53,7 +55,7 @@ public class ImportCommand implements Callable<Integer> {
             //            }
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
     }

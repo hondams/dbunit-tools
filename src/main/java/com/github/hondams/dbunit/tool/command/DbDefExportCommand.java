@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
@@ -17,6 +18,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "Export data from database to file")
 @Component
+@Slf4j
 public class DbDefExportCommand implements Callable<Integer> {
 
     @Option(names = {"-t", "--table"}, split = ",", required = true)
@@ -49,11 +51,11 @@ public class DbDefExportCommand implements Callable<Integer> {
             }
 
             this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, databaseNode);
-            ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
+            ConsolePrinter.println(log,"Exported to " + outputFile.getAbsolutePath());
 
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log,"Error: " + e.getMessage(), e);
             return 1;
         }
     }

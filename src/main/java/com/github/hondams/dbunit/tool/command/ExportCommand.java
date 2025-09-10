@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.QueryDataSet;
 import org.dbunit.dataset.IDataSet;
@@ -21,6 +22,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "Export data from database to file")
 @Component
+@Slf4j
 public class ExportCommand implements Callable<Integer> {
 
     @Option(names = {"-s", "--scheme"}, required = true)
@@ -93,10 +95,10 @@ public class ExportCommand implements Callable<Integer> {
                 }
             }
             DbUnitUtils.save(inputDataSet, outputFile, this.format);
-            ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
+            ConsolePrinter.println(log,"Exported to " + outputFile.getAbsolutePath());
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError("Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log,"Error: " + e.getMessage(), e);
             return 1;
         }
     }
