@@ -37,20 +37,20 @@ public class ImportCommand implements Callable<Integer> {
             File inputFile = new File(this.input);
             IDataSet inputDataSet = DbUnitUtils.loadStreaming(inputFile);
 
-            boolean oldAutoCommit = connection.getAutoCommit();
-            connection.setAutoCommit(false);
-            try {
-                DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
-                    this.scheme);
-                this.importOperation.execute(databaseConnection, inputDataSet);
-                ConsolePrinter.println("Imported from " + inputFile.getAbsolutePath());
-                connection.commit();
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(oldAutoCommit);
-            }
+            //            boolean oldAutoCommit = connection.getAutoCommit();
+            //            connection.setAutoCommit(false);
+            //            try {
+            DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
+                this.scheme);
+            this.importOperation.execute(databaseConnection, inputDataSet);
+            ConsolePrinter.println("Imported from " + inputFile.getAbsolutePath());
+            //                connection.commit();
+            //            } catch (Exception e) {
+            //                connection.rollback();
+            //                throw e;
+            //            } finally {
+            //                connection.setAutoCommit(oldAutoCommit);
+            //            }
             return 0;
         } catch (Exception e) {
             ConsolePrinter.printError("Error: " + e.getMessage(), e);
