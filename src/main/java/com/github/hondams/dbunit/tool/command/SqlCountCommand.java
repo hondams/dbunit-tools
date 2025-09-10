@@ -42,15 +42,15 @@ public class SqlCountCommand implements Callable<Integer> {
 
             List<List<String>> rows = new ArrayList<>();
 
+            List<TableDefinition> tableDefinitions;
+            if (this.table == null || this.table.length == 0) {
+                tableDefinitions = DatabaseUtils.getAllTables(connection);
+            } else {
+                List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
+                tableDefinitions = DatabaseUtils.getTables(connection, tableKeys);
+            }
+
             try (Statement statement = connection.createStatement()) {
-                List<TableDefinition> tableDefinitions;
-                if (this.table == null || this.table.length == 0) {
-                    tableDefinitions = DatabaseUtils.getAllTables(connection);
-                } else {
-                    List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(
-                        List.of(this.table));
-                    tableDefinitions = DatabaseUtils.getTables(connection, tableKeys);
-                }
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     TableKey tableKey = TableKey.fromTableDefinition(tableDefinition);
                     String tableName = TableKey.toQualifiedTableName(tableKey);

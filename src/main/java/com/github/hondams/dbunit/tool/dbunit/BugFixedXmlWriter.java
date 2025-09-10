@@ -52,6 +52,9 @@ public class BugFixedXmlWriter extends XmlWriter {
             case '\'':
                 entity = "&apos;";
                 break;
+            case '\u0000':
+                entity = "&amp;#x0;";
+                break;
             default:
                 // 不要なサロゲートペア処理を削除
                 //                if ((currentChar > 0x7f) && !isValidXmlChar(currentChar)) {

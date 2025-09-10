@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 
 @Command(name = "column",//
     description = "Print database column information")
@@ -34,8 +34,8 @@ public class DbDefColumnCommand implements Callable<Integer> {
         PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
         PrintLineAlignment.RIGHT);
 
-    @Parameters(index = "0", description = "table", arity = "1")
-    String table;
+    @Option(names = {"-t", "--table"}, split = ",", required = true)
+    String[] table;
 
     @Autowired
     DataSource dataSource;
@@ -44,16 +44,11 @@ public class DbDefColumnCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
 
-            TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
-            if (tableKey == null) {
-                throw new IllegalStateException("Invalid table name: " + this.table);
-            }
-
-            DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection,
-                tableKey.getCatalogName(), tableKey.getSchemaName(), tableKey.getTableName());
+            List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
+            DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKeys);
 
             if (databaseNode.getCatalogs().isEmpty()) {
-                throw new IllegalStateException("Table not found: " + this.table);
+                throw new IllegalStateException("Table not found: " + List.of(this.table));
             }
 
             for (CatalogNode catalogNode : databaseNode.getCatalogs()) {

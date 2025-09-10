@@ -28,8 +28,8 @@ public class DbDefTableCommand implements Callable<Integer> {
         PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
         PrintLineAlignment.LEFT, PrintLineAlignment.LEFT);
 
-    @Option(names = {"-t", "--table"})
-    String table;
+    @Option(names = {"-t", "--table"}, split = ",")
+    String[] table;
 
     @Autowired
     DataSource dataSource;
@@ -38,21 +38,17 @@ public class DbDefTableCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
 
-            TableKey tableKey;
-            if (this.table == null) {
-                tableKey = TableKey.fromQualifiedTableName("%");
-            } else {
-                tableKey = TableKey.fromQualifiedTableName(this.table);
-            }
-            if (tableKey == null) {
-                throw new IllegalStateException("Invalid table name: " + this.table);
-            }
-
             List<List<String>> rows = new ArrayList<>();
 
-            List<TableDefinition> tables = DatabaseUtils.getTables(connection,
-                tableKey.getCatalogName(), tableKey.getSchemaName(), tableKey.getTableName());
-            for (TableDefinition table : tables) {
+            List<TableDefinition> tableDefinitions;
+            if (this.table == null || this.table.length == 0) {
+                tableDefinitions = DatabaseUtils.getAllTables(connection);
+            } else {
+                List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
+                tableDefinitions = DatabaseUtils.getTables(connection, tableKeys);
+            }
+
+            for (TableDefinition table : tableDefinitions) {
                 String catalogName = table.getCatalogName();
                 String schemaName = table.getSchemaName();
                 if (catalogName == null) {

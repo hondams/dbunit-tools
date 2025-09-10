@@ -49,7 +49,7 @@ public class BugFixedFlatXmlWriter implements IDataSetConsumer {
      * Logger for this class
      */
     private static final Logger logger = LoggerFactory.getLogger(
-        org.dbunit.dataset.xml.FlatXmlWriter.class);
+        BugFixedFlatXmlWriter.class);
 
     private static final String DATASET = "dataset";
 

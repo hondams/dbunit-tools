@@ -163,7 +163,7 @@ public class DatabaseUtils {
     }
 
     public List<TableDefinition> getAllTables(Connection connection) throws SQLException {
-        return getTables(connection, null, null, "%");
+        return getTables(connection, new TableKey(null, null, "%"));
     }
 
 
@@ -178,15 +178,10 @@ public class DatabaseUtils {
 
     public List<TableDefinition> getTables(Connection connection, TableKey tableKey)
         throws SQLException {
-        return getTables(connection, tableKey.getCatalogName(), tableKey.getSchemaName(),
-            tableKey.getTableName());
-    }
-
-    public List<TableDefinition> getTables(Connection connection, String catalog,
-        String schemaPattern, String tableNamePattern) throws SQLException {
         List<TableDefinition> tables = new ArrayList<>();
         DatabaseMetaData metaData = connection.getMetaData();
-        try (ResultSet rs = metaData.getTables(catalog, schemaPattern, tableNamePattern, null)) {
+        try (ResultSet rs = metaData.getTables(tableKey.getCatalogName(), tableKey.getSchemaName(),
+            tableKey.getTableName(), null)) {
             while (rs.next()) {
                 TableDefinition definition = new TableDefinition();
                 definition.setCatalogName(rs.getString("TABLE_CAT"));
@@ -201,15 +196,16 @@ public class DatabaseUtils {
     }
 
     public List<ColumnDefinition> getAllColumns(Connection connection) throws SQLException {
-        return getColumns(connection, null, null, "%");
+        return getColumns(connection, new TableKey(null, null, "%"));
     }
 
-    public List<ColumnDefinition> getColumns(Connection connection, String catalog,
-        String schemaPattern, String tableNamePattern) throws SQLException {
+    public List<ColumnDefinition> getColumns(Connection connection, TableKey tableKey)
+        throws SQLException {
         List<ColumnDefinition> columns = new ArrayList<>();
 
         DatabaseMetaData metaData = connection.getMetaData();
-        try (ResultSet rs = metaData.getColumns(catalog, schemaPattern, tableNamePattern, "%")) {
+        try (ResultSet rs = metaData.getColumns(tableKey.getCatalogName(), tableKey.getSchemaName(),
+            tableKey.getTableName(), "%")) {
             while (rs.next()) {
                 ColumnDefinition definition = new ColumnDefinition();
                 definition.setCatalogName(rs.getString("TABLE_CAT"));
@@ -242,12 +238,23 @@ public class DatabaseUtils {
         return columns;
     }
 
-    public DatabaseNode getDatabaseNode(Connection connection, String catalog, String schemaPattern,
-        String tableNamePattern) throws SQLException {
+    public DatabaseNode getDatabaseNode(Connection connection, List<TableKey> tableKeys)
+        throws SQLException {
 
         DatabaseNodeBuilder builder = new DatabaseNodeBuilder();
-        List<ColumnDefinition> columns = getColumns(connection, catalog, schemaPattern,
-            tableNamePattern);
+        for (TableKey tableKey : tableKeys) {
+            List<ColumnDefinition> columns = getColumns(connection, tableKey);
+            builder.append(columns);
+        }
+
+        return builder.build();
+    }
+
+    public DatabaseNode getDatabaseNode(Connection connection, TableKey tableKey)
+        throws SQLException {
+
+        DatabaseNodeBuilder builder = new DatabaseNodeBuilder();
+        List<ColumnDefinition> columns = getColumns(connection, tableKey);
         builder.append(columns);
 
         return builder.build();

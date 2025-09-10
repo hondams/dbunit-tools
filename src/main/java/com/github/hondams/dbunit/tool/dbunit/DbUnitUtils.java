@@ -159,7 +159,7 @@ public class DbUnitUtils {
                 Reader reeder = new InputStreamReader(new FileInputStream(file),
                     StandardCharsets.UTF_8);
                 InputSource inputSource = new InputSource(reeder);
-                FlatXmlProducer producer = new FlatXmlProducer(inputSource);
+                FlatXmlProducer producer = new BugFixedFlatXmlProducer(inputSource);
                 producer.setColumnSensing(true);
                 return new ClosableDataSetProducer(producer, () -> {
                     try {
@@ -212,6 +212,7 @@ public class DbUnitUtils {
 
     public IDataSet loadFlatXml(File file) {
         try {
+            // TODO:BugFixedFlatXmlDataSetBuilder
             FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
             builder.setColumnSensing(true);
             return builder.build(file);

@@ -31,6 +31,7 @@ public class DbDefSchemaCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         try (Connection connection = this.dataSource.getConnection()) {
             List<List<String>> rows = new ArrayList<>();
+
             List<SchemaDefinition> schemas = DatabaseUtils.getAllSchemas(connection);
             for (SchemaDefinition schema : schemas) {
                 String catalogName = schema.getCatalogName();
@@ -43,6 +44,7 @@ public class DbDefSchemaCommand implements Callable<Integer> {
                 }
                 rows.add(List.of(catalogName, schemaName));
             }
+
             List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS, rows);
             for (String line : lines) {
                 ConsolePrinter.println(line);

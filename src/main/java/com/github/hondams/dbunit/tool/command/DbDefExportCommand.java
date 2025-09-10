@@ -7,6 +7,7 @@ import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import java.io.File;
 import java.sql.Connection;
+import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import picocli.CommandLine.Option;
 @Component
 public class DbDefExportCommand implements Callable<Integer> {
 
-    @Option(names = {"-t", "--table"})
-    String table;
+    @Option(names = {"-t", "--table"}, split = ",", required = true)
+    String[] table;
 
     @Option(names = {"-o", "--output"}, required = true)
     String output;
@@ -34,13 +35,9 @@ public class DbDefExportCommand implements Callable<Integer> {
     public Integer call() throws Exception {
 
         try (Connection connection = this.dataSource.getConnection()) {
-            TableKey tableKey = TableKey.fromQualifiedTableName(this.table);
-            if (tableKey == null) {
-                throw new IllegalStateException("Invalid table name: " + this.table);
-            }
 
-            DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection,
-                tableKey.getCatalogName(), tableKey.getSchemaName(), tableKey.getTableName());
+            List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
+            DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKeys);
 
             File outputFile = new File(this.output);
             if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
@@ -50,6 +47,7 @@ public class DbDefExportCommand implements Callable<Integer> {
                         "Failed to create directories: " + outputFile.getParentFile());
                 }
             }
+
             this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, databaseNode);
             ConsolePrinter.println("Exported to " + outputFile.getAbsolutePath());
 
