@@ -10,7 +10,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class SqlUtils {
 
-    public String getEmpty(String tableName, List<ColumnNode> columns) {
+    public String getEmpty(String tableName) {
         return "SELECT * FROM " + tableName + " WHERE 1=0";
     }
 

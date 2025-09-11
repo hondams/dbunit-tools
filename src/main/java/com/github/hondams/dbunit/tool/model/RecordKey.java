@@ -21,7 +21,7 @@ public class RecordKey implements Comparable<RecordKey> {
             Comparable thisValue = this.values.get(i);
             Comparable otherValue = o.values.get(i);
             if (thisValue == null && otherValue == null) {
-                continue;
+                // skip
             } else if (thisValue == null) {
                 return -1;
             } else if (otherValue == null) {

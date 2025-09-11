@@ -67,8 +67,7 @@ public class ExportEmptyCommand implements Callable<Integer> {
                         for (TableNode tableNode : schemaNode.getTables()) {
                             if (!isExcluded(tableNode.getTableName())) {
                                 inputDataSet.addTable(tableNode.getTableName(),
-                                    SqlUtils.getEmpty(tableNode.getTableName(),
-                                        tableNode.getColumns()));
+                                    SqlUtils.getEmpty(tableNode.getTableName()));
                             }
                         }
                     }

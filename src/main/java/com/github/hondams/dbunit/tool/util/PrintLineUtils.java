@@ -41,10 +41,10 @@ public class PrintLineUtils {
         }
 
         List<String> lines = new ArrayList<>();
-        lines.add(buildHeaderLine(headers, maxLengthArray));
-        lines.add(buildHeaderLine(maxLengthArray));
+        lines.add(prefix + buildHeaderLine(headers, maxLengthArray));
+        lines.add(prefix + buildHeaderLine(maxLengthArray));
         for (List<String> row : rows) {
-            lines.add(buildRowLine(row, maxLengthArray, alignments));
+            lines.add(prefix + buildRowLine(row, maxLengthArray, alignments));
         }
         return lines;
     }
