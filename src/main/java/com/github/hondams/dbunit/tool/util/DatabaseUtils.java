@@ -67,70 +67,100 @@ public class DatabaseUtils {
 
     );
     private final Map<Integer, String> ORACLE_SQL_TYPE_NAME_MAP = Map.ofEntries(//
-        Map.entry(OracleTypes.ARRAY, ""),//
-        Map.entry(OracleTypes.BFILE, ""),//
-        Map.entry(OracleTypes.BIGINT, ""),//
-        Map.entry(OracleTypes.BINARY, ""),//
-        Map.entry(OracleTypes.BINARY_DOUBLE, ""),//
-        Map.entry(OracleTypes.BINARY_FLOAT, ""),//
-        Map.entry(OracleTypes.BIT, ""),//
-        Map.entry(OracleTypes.BLOB, ""),//
-        Map.entry(OracleTypes.BOOLEAN, ""),//
-        Map.entry(OracleTypes.CHAR, ""),//
-        Map.entry(OracleTypes.CLOB, ""),//
-        Map.entry(OracleTypes.CURSOR, ""),//
-        Map.entry(OracleTypes.DATALINK, ""),//
-        Map.entry(OracleTypes.DATE, ""),//
-        Map.entry(OracleTypes.DECIMAL, ""),//
-        Map.entry(OracleTypes.DOUBLE, ""),//
-        Map.entry(OracleTypes.FIXED_CHAR, ""),//
-        Map.entry(OracleTypes.FLOAT, ""),//
-        Map.entry(OracleTypes.INTEGER, ""),//
-        Map.entry(OracleTypes.INTERVALDS, ""),//
-        Map.entry(OracleTypes.INTERVALYM, ""),//
-        Map.entry(OracleTypes.JAVA_OBJECT, ""),//
-        Map.entry(OracleTypes.JAVA_STRUCT, ""),//
-        Map.entry(OracleTypes.JSON, ""),//
-        Map.entry(OracleTypes.LONGNVARCHAR, ""),//
-        Map.entry(OracleTypes.LONGVARBINARY, ""),//
-        Map.entry(OracleTypes.LONGVARCHAR, ""),//
-        Map.entry(OracleTypes.NCHAR, ""),//
-        Map.entry(OracleTypes.NCLOB, ""),//
-        Map.entry(OracleTypes.NULL, ""),//
-        Map.entry(OracleTypes.NUMBER, ""),//
-        //Map.entry(OracleTypes.NUMERIC, ""),//OracleTypes.NUMBERと同じ
-        Map.entry(OracleTypes.NVARCHAR, ""),//
-        Map.entry(OracleTypes.OPAQUE, ""),//
-        Map.entry(OracleTypes.OTHER, ""),//
-        Map.entry(OracleTypes.PLSQL_BOOLEAN, ""),//
-        Map.entry(OracleTypes.PLSQL_INDEX_TABLE, ""),//
-        //Map.entry(OracleTypes.RAW, ""),//OracleTypes.BINARYと同じ
-        Map.entry(OracleTypes.REAL, ""),//
-        Map.entry(OracleTypes.REF, ""),//
-        Map.entry(OracleTypes.REF_CURSOR, ""),//
-        Map.entry(OracleTypes.ROWID, ""),//
-        Map.entry(OracleTypes.SMALLINT, ""),//
-        Map.entry(OracleTypes.SQLXML, ""),//
-        Map.entry(OracleTypes.STRUCT, ""),//
-        Map.entry(OracleTypes.TIME, ""),//
-        Map.entry(OracleTypes.TIMESTAMP, ""),//
-        Map.entry(OracleTypes.TIMESTAMPLTZ, ""),//
-        //Map.entry(OracleTypes.TIMESTAMPNS, ""),//OracleTypes.BINARY_FLOATと同じ
-        Map.entry(OracleTypes.TIMESTAMPTZ, ""),//
-        Map.entry(OracleTypes.TINYINT, ""),//
-        Map.entry(OracleTypes.VARBINARY, ""),//
-        Map.entry(OracleTypes.VARCHAR, ""),//
-        Map.entry(OracleTypes.VECTOR, ""),//
-        Map.entry(OracleTypes.VECTOR_BINARY, ""),//
-        Map.entry(OracleTypes.VECTOR_FLOAT32, ""),//
-        Map.entry(OracleTypes.VECTOR_FLOAT64, ""),//
-        Map.entry(OracleTypes.VECTOR_INT8, "")//
+        Map.entry(OracleTypes.ARRAY, "ORACLE_ARRAY"),//
+        Map.entry(OracleTypes.BFILE, "ORACLE_BFILE"),//
+        Map.entry(OracleTypes.BIGINT, "ORACLE_BIGINT"),//
+        Map.entry(OracleTypes.BINARY, "ORACLE_BINARY"),//
+        Map.entry(OracleTypes.BINARY_DOUBLE, "ORACLE_BINARY_DOUBLE"),//
+        Map.entry(OracleTypes.BINARY_FLOAT, "ORACLE_BINARY_FLOAT"),//
+        Map.entry(OracleTypes.BIT, "ORACLE_BIT"),//
+        Map.entry(OracleTypes.BLOB, "ORACLE_BLOB"),//
+        Map.entry(OracleTypes.BOOLEAN, "ORACLE_BOOLEAN"),//
+        Map.entry(OracleTypes.CHAR, "ORACLE_CHAR"),//
+        Map.entry(OracleTypes.CLOB, "ORACLE_CLOB"),//
+        Map.entry(OracleTypes.CURSOR, "ORACLE_CURSOR"),//
+        Map.entry(OracleTypes.DATALINK, "ORACLE_DATALINK"),//
+        Map.entry(OracleTypes.DATE, "ORACLE_DATE"),//
+        Map.entry(OracleTypes.DECIMAL, "ORACLE_DECIMAL"),//
+        Map.entry(OracleTypes.DOUBLE, "ORACLE_DOUBLE"),//
+        Map.entry(OracleTypes.FIXED_CHAR, "ORACLE_FIXED_CHAR"),//
+        Map.entry(OracleTypes.FLOAT, "ORACLE_FLOAT"),//
+        Map.entry(OracleTypes.INTEGER, "ORACLE_INTEGER"),//
+        Map.entry(OracleTypes.INTERVALDS, "ORACLE_INTERVALDS"),//
+        Map.entry(OracleTypes.INTERVALYM, "ORACLE_INTERVALYM"),//
+        Map.entry(OracleTypes.JAVA_OBJECT, "ORACLE_JAVA_OBJECT"),//
+        Map.entry(OracleTypes.JAVA_STRUCT, "ORACLE_JAVA_STRUCT"),//
+        Map.entry(OracleTypes.JSON, "ORACLE_JSON"),//
+        Map.entry(OracleTypes.LONGNVARCHAR, "ORACLE_LONGNVARCHAR"),//
+        Map.entry(OracleTypes.LONGVARBINARY, "ORACLE_LONGVARBINARY"),//
+        Map.entry(OracleTypes.LONGVARCHAR, "ORACLE_LONGVARCHAR"),//
+        Map.entry(OracleTypes.NCHAR, "ORACLE_NCHAR"),//
+        Map.entry(OracleTypes.NCLOB, "ORACLE_NCLOB"),//
+        Map.entry(OracleTypes.NULL, "ORACLE_NULL"),//
+        Map.entry(OracleTypes.NUMBER, "NUMBER"),//
+        //Map.entry(OracleTypes.NUMERIC, "ORACLE_NUMERIC"),//OracleTypes.NUMBERと同じ
+        Map.entry(OracleTypes.NVARCHAR, "ORACLE_NVARCHAR"),//
+        Map.entry(OracleTypes.OPAQUE, "ORACLE_OPAQUE"),//
+        Map.entry(OracleTypes.OTHER, "ORACLE_OTHER"),//
+        Map.entry(OracleTypes.PLSQL_BOOLEAN, "ORACLE_PLSQL_BOOLEAN"),//
+        Map.entry(OracleTypes.PLSQL_INDEX_TABLE, "ORACLE_PLSQL_INDEX_TABLE"),//
+        //Map.entry(OracleTypes.RAW, "ORACLE_RAW"),//OracleTypes.BINARYと同じ
+        Map.entry(OracleTypes.REAL, "ORACLE_REAL"),//
+        Map.entry(OracleTypes.REF, "ORACLE_REF"),//
+        Map.entry(OracleTypes.REF_CURSOR, "ORACLE_REF_CURSOR"),//
+        Map.entry(OracleTypes.ROWID, "ORACLE_ROWID"),//
+        Map.entry(OracleTypes.SMALLINT, "ORACLE_SMALLINT"),//
+        Map.entry(OracleTypes.SQLXML, "ORACLE_SQLXML"),//
+        Map.entry(OracleTypes.STRUCT, "ORACLE_STRUCT"),//
+        Map.entry(OracleTypes.TIME, "ORACLE_TIME"),//
+        Map.entry(OracleTypes.TIMESTAMP, "ORACLE_TIMESTAMP"),//
+        Map.entry(OracleTypes.TIMESTAMPLTZ, "ORACLE_TIMESTAMPLTZ"),//
+        //Map.entry(OracleTypes.TIMESTAMPNS, "ORACLE_TIMESTAMPNS"),//OracleTypes.BINARY_FLOATと同じ
+        Map.entry(OracleTypes.TIMESTAMPTZ, "ORACLE_TIMESTAMPTZ"),//
+        Map.entry(OracleTypes.TINYINT, "ORACLE_TINYINT"),//
+        Map.entry(OracleTypes.VARBINARY, "ORACLE_VARBINARY"),//
+        Map.entry(OracleTypes.VARCHAR, "ORACLE_VARCHAR"),//
+        Map.entry(OracleTypes.VECTOR, "ORACLE_VECTOR"),//
+        Map.entry(OracleTypes.VECTOR_BINARY, "ORACLE_VECTOR_BINARY"),//
+        Map.entry(OracleTypes.VECTOR_FLOAT32, "ORACLE_VECTOR_FLOAT32"),//
+        Map.entry(OracleTypes.VECTOR_FLOAT64, "ORACLE_VECTOR_FLOAT64"),//
+        Map.entry(OracleTypes.VECTOR_INT8, "ORACLE_VECTOR_INT8")//
     );
 
-    public String getSqlTypeName(int sqlType) {
+    public String getSqlTypeName(Connection connection, int sqlType) throws SQLException {
         String sqlTypeName = SQL_TYPE_NAME_MAP.get(sqlType);
         if (sqlTypeName == null) {
-            sqlTypeName = ORACLE_SQL_TYPE_NAME_MAP.get(sqlType);
+            DatabaseMetaData metaData = connection.getMetaData();
+            String productName = metaData.getDatabaseProductName();
+            switch (productName.toLowerCase()) {
+                case "mysql":
+                    //TODO
+                    break;
+                case "mariadb":
+                    // MariaDB is compatible with MySQL
+                    //TODO
+                    break;
+                case "postgresql":
+                    //TODO
+                    break;
+                case "oracle":
+                    sqlTypeName = ORACLE_SQL_TYPE_NAME_MAP.get(sqlType);
+                    break;
+                case "microsoft sql server":
+                case "sql server":
+                    //TODO
+                    break;
+                case "db2":
+                    //TODO
+                    break;
+                case "h2":
+                    //TODO
+                    break;
+                default:
+                    // Unknown database
+                    //TODO
+                    break;
+            }
         }
         return sqlTypeName;
     }
@@ -214,7 +244,7 @@ public class DatabaseUtils {
                 definition.setColumnName(rs.getString("COLUMN_NAME"));
 
                 int dataType = rs.getInt("DATA_TYPE");
-                String sqlTypeName = DatabaseUtils.getSqlTypeName(dataType);
+                String sqlTypeName = DatabaseUtils.getSqlTypeName(connection, dataType);
                 if (sqlTypeName == null) {
                     log.warn("Unknown SQL type. dataType={}", dataType);
                     sqlTypeName = "UNKNOWN";

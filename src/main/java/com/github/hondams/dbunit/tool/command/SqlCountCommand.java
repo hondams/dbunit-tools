@@ -6,6 +6,7 @@ import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import com.github.hondams.dbunit.tool.util.PrintLineUtils;
+import com.github.hondams.dbunit.tool.util.SqlUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -56,7 +57,7 @@ public class SqlCountCommand implements Callable<Integer> {
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     TableKey tableKey = TableKey.fromTableDefinition(tableDefinition);
                     String tableName = TableKey.toQualifiedTableName(tableKey);
-                    String sql = "SELECT COUNT(*) FROM " + tableName;
+                    String sql = SqlUtils.getCount(tableName);
                     try (ResultSet resultSet = statement.executeQuery(sql)) {
                         if (resultSet.next()) {
                             int count = resultSet.getInt(1);
