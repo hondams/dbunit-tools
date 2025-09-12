@@ -22,7 +22,8 @@ import picocli.CommandLine.Parameters;
 @Slf4j
 public class SqlQueryCommand implements Callable<Integer> {
 
-    @Parameters(index = "0", description = "sql", arity = "1")
+    @Parameters(index = "0", arity = "1",//
+        description = "SQL query to execute")
     String sql;
 
     @Autowired

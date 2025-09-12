@@ -1,6 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.dbunit.DatabaseConnectionFactory;
+import com.github.hondams.dbunit.tool.dbunit.DbUnitFileFormat;
 import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import java.io.File;
@@ -21,19 +22,27 @@ import picocli.CommandLine.Parameters;
 @Slf4j
 public class ExportSqlCommand implements Callable<Integer> {
 
-    @Parameters(index = "0", description = "sql", arity = "1")
+    @Parameters(index = "0", arity = "1",//
+        description = "SQL query to export")
     String sql;
 
-    @Option(names = {"-s", "--scheme"}, required = true)
+    @Option(names = {"-s", "--scheme"},//
+        description = "Schema name. If not specified, the default schema is used.")
     String scheme;
 
-    @Option(names = {"-t", "--table"}, required = true)
+    @Option(names = {"-t", "--table"}, required = true, //
+        description = "Table name. Specify only the table name.")
     String table;
 
-    @Option(names = {"-f", "--format"})
-    String format;
+    @Option(names = {"-f", "--format"},//
+        description = "File format. " //
+            + "When outputting as XML or CSV, this option must be specified. "//
+            + "If not specified, the format is inferred from the file extension.")
+    DbUnitFileFormat format;
 
-    @Option(names = {"-o", "--output"}, required = true)
+    @Option(names = {"-o", "--output"}, required = true,//
+        description = "Output dbunit file path. "//
+            + "If the format is CSV, specify a directory.")
     String output;
 
     @Autowired

@@ -21,10 +21,12 @@ import picocli.CommandLine.Option;
 @Slf4j
 public class DbDefExportCommand implements Callable<Integer> {
 
-    @Option(names = {"-t", "--table"}, split = ",", required = true)
+    @Option(names = {"-t", "--table"}, split = ",", required = true,//
+        description = "Table name. Specify as [catalog.]schema.table. Pattern match using % is available.")
     String[] table;
 
-    @Option(names = {"-o", "--output"}, required = true)
+    @Option(names = {"-o", "--output"}, required = true,//
+        description = "Output file path")
     String output;
 
     @Autowired
@@ -51,11 +53,11 @@ public class DbDefExportCommand implements Callable<Integer> {
             }
 
             this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, databaseNode);
-            ConsolePrinter.println(log,"Exported to " + outputFile.getAbsolutePath());
+            ConsolePrinter.println(log, "Exported to " + outputFile.getAbsolutePath());
 
             return 0;
         } catch (Exception e) {
-            ConsolePrinter.printError(log,"Error: " + e.getMessage(), e);
+            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
     }

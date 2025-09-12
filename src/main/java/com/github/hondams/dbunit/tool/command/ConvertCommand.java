@@ -1,5 +1,6 @@
 package com.github.hondams.dbunit.tool.command;
 
+import com.github.hondams.dbunit.tool.dbunit.DbUnitFileFormat;
 import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import java.io.File;
@@ -21,13 +22,32 @@ public class ConvertCommand implements Callable<Integer> {
     String[] input;
 
     @Option(names = {"-f", "--format"})
-    String format;
+    DbUnitFileFormat format;
 
     @Option(names = {"-o", "--output"}, required = true)
     String output;
 
+    @Option(names = {"-m", "--output-mode"})
+    String outputMode;
+
+    @Option(names = {"-l", "--limit"})
+    int limit = -1;
+
     @Override
     public Integer call() throws Exception {
+
+        // Inputファイルを検索する。
+        // ※検知したファイルリストを、画面・ログに表示
+        // tempディレクトリを作る
+        // DBのメタデータ（dbdef exportの結果）を取得する。
+        // ファイル単位に読込、テーブル単位に分割して、レコードをソートしたファイルをtempディレクトリに保存する。
+        // ※ 1テーブルで、5GBとかある場合もあるので、一定件数で分割して、出力する。結局、後続処理で、マージソートでマージすることを期待。
+        //　DBのメタデータ（dbdef exportの結果）から、ITableのメタデータを作る。
+        // テーブル単位のファイルを複数同時に開き、マージソートで、マージしながら、テーブル単位の一時ファイルをtempディレクトリに保存する。
+        // テーブル単位の一時ファイルをまとめて、IDataSetにまとめる。
+        // ※ オプションんにより、レコード数でファイルを分けたり、テーブルごとに分けたりする。
+        // IDataSetを出力する。
+        // キーが同じレコードは、優先し、後のファイルのレコードで上書し、画面・ログに表示
 
         List<IDataSet> dataSets = new ArrayList<>();
         for (String in : this.input) {

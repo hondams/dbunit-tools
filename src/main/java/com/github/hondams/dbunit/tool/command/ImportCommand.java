@@ -23,13 +23,16 @@ import picocli.CommandLine.Option;
 @Slf4j
 public class ImportCommand implements Callable<Integer> {
 
-    @Option(names = {"-s", "--scheme"})
+    @Option(names = {"-s", "--scheme"},//
+        description = "Schema name. If not specified, the default schema is used.")
     String scheme;
 
-    @Option(names = {"-i", "--input"}, required = true)
+    @Option(names = {"-i", "--input"}, required = true,//
+        description = "Input dbunit file path")
     String input;
 
-    @Option(names = {"-c", "--chunk"})
+    @Option(names = {"-c", "--chunk"},//
+        description = "Number of rows per batch when inserting. If not specified or less than 1, all rows are inserted at once.")
     int chunk = -1;
 
     @Autowired

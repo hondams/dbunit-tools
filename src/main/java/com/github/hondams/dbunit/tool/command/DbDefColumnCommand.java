@@ -36,7 +36,8 @@ public class DbDefColumnCommand implements Callable<Integer> {
         PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
         PrintLineAlignment.RIGHT);
 
-    @Option(names = {"-t", "--table"}, split = ",", required = true)
+    @Option(names = {"-t", "--table"}, split = ",", required = true,//
+        description = "Table name. Specify as [catalog.]schema.table. Pattern match using % is available.")
     String[] table;
 
     @Autowired

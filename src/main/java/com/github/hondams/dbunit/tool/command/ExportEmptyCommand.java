@@ -1,6 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.dbunit.DatabaseConnectionFactory;
+import com.github.hondams.dbunit.tool.dbunit.DbUnitFileFormat;
 import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
 import com.github.hondams.dbunit.tool.model.CatalogNode;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
@@ -28,19 +29,29 @@ import picocli.CommandLine.Option;
 @Slf4j
 public class ExportEmptyCommand implements Callable<Integer> {
 
-    @Option(names = {"-s", "--scheme"}, required = true)
+    @Option(names = {"-s", "--scheme"},//
+        description = "Schema name. If not specified, the default schema is used.")
     String scheme;
 
-    @Option(names = {"-t", "--table"}, split = ",", required = true)
+    @Option(names = {"-t", "--table"}, split = ",", required = true,//
+        description = "Table name. Specify only the table name. Pattern match using % is available.")
     String[] table;
 
-    @Option(names = {"-e", "--exclude"}, split = ",")
+    @Option(names = {"-e", "--exclude"}, split = ",",//
+        description = "Table names to exclude. "//
+            + "Specify only the table name. "//
+            + "Exclusion is applied only when the table name matches case-insensitively.")
     String[] exclude;
 
-    @Option(names = {"-f", "--format"})
-    String format;
+    @Option(names = {"-f", "--format"},//
+        description = "File format. " //
+            + "When outputting as XML or CSV, this option must be specified. "//
+            + "If not specified, the format is inferred from the file extension.")
+    DbUnitFileFormat format;
 
-    @Option(names = {"-o", "--output"}, required = true)
+    @Option(names = {"-o", "--output"}, required = true,//
+        description = "Output dbunit file path. "//
+            + "If the format is CSV, specify a directory.")
     String output;
 
     @Autowired
@@ -63,7 +74,8 @@ public class ExportEmptyCommand implements Callable<Integer> {
             QueryDataSet inputDataSet = new QueryDataSet(databaseConnection);
             for (CatalogNode catalogNode : databaseNode.getCatalogs()) {
                 for (SchemaNode schemaNode : catalogNode.getSchemas()) {
-                    if (this.scheme.equalsIgnoreCase(schemaNode.getSchemaName())) {
+                    if (this.scheme == null//
+                        || this.scheme.equalsIgnoreCase(schemaNode.getSchemaName())) {
                         for (TableNode tableNode : schemaNode.getTables()) {
                             if (!isExcluded(tableNode.getTableName())) {
                                 inputDataSet.addTable(tableNode.getTableName(),

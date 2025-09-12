@@ -16,7 +16,8 @@ import picocli.CommandLine.Parameters;
 @Slf4j
 public class SqlUpdateCommand implements Callable<Integer> {
 
-    @Parameters(index = "0", description = "sql", arity = "1")
+    @Parameters(index = "0", arity = "1",//
+        description = "SQL update to execute")
     String sql;
 
     @Autowired

@@ -25,7 +25,8 @@ public class BatchCommand implements Callable<Integer> {
     @Autowired
     ApplicationContext applicationContext;
 
-    @Option(names = {"-f", "--file"}, required = true)
+    @Option(names = {"-f", "--file"}, required = true,//
+        description = "File containing commands to execute")
     String file;
 
     @Override

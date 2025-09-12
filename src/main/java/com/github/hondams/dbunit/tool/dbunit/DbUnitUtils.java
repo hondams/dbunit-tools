@@ -249,46 +249,46 @@ public class DbUnitUtils {
         }
     }
 
-    public void save(IDataSet dataSet, File file, String format) {
+    public void save(IDataSet dataSet, File file, DbUnitFileFormat format) {
         String extension = FileUtils.getFileExtension(file);
-        if ("xml".equalsIgnoreCase(extension)) {
-            if (format == null || "flatxml".equalsIgnoreCase(format)) {
+        switch (format) {
+            case CSV:
+                checkAndResetCsvDirectory(file);
+                saveCsv(dataSet, file);
+                break;
+            case EXCEL:
+                if ("xls".equalsIgnoreCase(extension)) {
+                    saveXls(dataSet, file);
+                } else if ("xlsx".equalsIgnoreCase(extension)) {
+                    saveXlsx(dataSet, file);
+                } else {
+                    throw new IllegalArgumentException(
+                        "When format is excel, file extension must be xls or xlsx: " + extension);
+                }
+                break;
+            case FLAT_XML:
                 saveFlatXml(dataSet, file);
-            } else if ("xml".equalsIgnoreCase(format)) {
+                break;
+            case XML:
                 saveXml(dataSet, file);
-            } else {
-                throw new IllegalArgumentException(
-                    "When file extension is xml, format must be xml or flatxml: " + format);
-            }
-        } else if ("flatxml".equalsIgnoreCase(extension)) {
-            if (format != null && !"flatxml".equalsIgnoreCase(format)) {
-                throw new IllegalArgumentException(
-                    "When file extension is flatxml, format must be flatxml: " + format);
-            }
-            saveFlatXml(dataSet, file);
-        } else if ("xls".equalsIgnoreCase(extension)) {
-            if (format != null && !"excel".equalsIgnoreCase(format)) {
-                throw new IllegalArgumentException(
-                    "When file extension is xls, format must be excel: " + format);
-            }
-            saveXls(dataSet, file);
-        } else if ("xlsx".equalsIgnoreCase(extension)) {
-            if (format != null && !"excel".equalsIgnoreCase(format)) {
-                throw new IllegalArgumentException(
-                    "When file extension is xlsx, format must be excel: " + format);
-            }
-            saveXlsx(dataSet, file);
-        } else if ("yaml".equalsIgnoreCase(extension) || "yml".equalsIgnoreCase(extension)) {
-            if (format != null && !"yaml".equalsIgnoreCase(format)) {
-                throw new IllegalArgumentException(
-                    "When file extension is yaml or yml, format must be yaml: " + format);
-            }
-            saveYaml(dataSet, file);
-        } else if ("csv".equalsIgnoreCase(format)) {
-            checkAndResetCsvDirectory(file);
-            saveCsv(dataSet, file);
-        } else {
-            throw new IllegalArgumentException("Unsupported file extension: " + extension);
+                break;
+            case YAML:
+                saveYaml(dataSet, file);
+                break;
+            default:
+                if ("xml".equalsIgnoreCase(extension) || "flatxml".equalsIgnoreCase(extension)) {
+                    saveFlatXml(dataSet, file);
+                } else if ("xls".equalsIgnoreCase(extension)) {
+                    saveXls(dataSet, file);
+                } else if ("xlsx".equalsIgnoreCase(extension)) {
+                    saveXlsx(dataSet, file);
+                } else if ("yaml".equalsIgnoreCase(extension) || "yml".equalsIgnoreCase(
+                    extension)) {
+                    saveYaml(dataSet, file);
+                } else {
+                    throw new IllegalArgumentException("Unsupported file extension: " + extension);
+                }
+                break;
         }
     }
 

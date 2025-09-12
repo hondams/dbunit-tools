@@ -50,9 +50,11 @@ public class DbDefDiffCommand implements Callable<Integer> {
         PrintLineAlignment.LEFT,//
         PrintLineAlignment.LEFT);
 
-    @Option(names = {"-f1", "--file1"}, required = true)
+    @Option(names = {"-f1", "--file1"}, required = true,//
+        description = "Database definition file 1. Specify a file exported by dbdef export.")
     String file1;
-    @Option(names = {"-f2", "--file2"}, required = true)
+    @Option(names = {"-f2", "--file2"}, required = true,//
+        description = "Database definition file 2. Specify a file exported by dbdef export.")
     String file2;
 
     @Autowired
