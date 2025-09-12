@@ -5,8 +5,19 @@ sql update -f=command/test/sql/schema.sql
 
 sql update -f=command/test/sql/data.sql
 
-
 sql count -t=DBUNIT_TOOLS_%
+
+sql query -f=command/test/sql/query.sql
+
+sql query "SELECT * FROM dbunit_tools_users"
+
+dbdef catalog
+
+dbdef schema
+
+dbdef table -t=DBUNIT_TOOLS_%
+
+dbdef column -t=DBUNIT_TOOLS_%
 
 sql update "DROP TABLE dbunit_tools_users"
 
