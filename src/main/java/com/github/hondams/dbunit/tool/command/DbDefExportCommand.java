@@ -22,7 +22,7 @@ import picocli.CommandLine.Option;
 public class DbDefExportCommand implements Callable<Integer> {
 
     @Option(names = {"-t", "--table"}, split = ",", required = true,//
-        description = "Table name. Specify as [catalog.]schema.table. Pattern match using % is available.")
+        description = "Table name. Specify as [catalog.]schema.table. Pattern match using %% is available.")
     String[] table;
 
     @Option(names = {"-o", "--output"}, required = true,//

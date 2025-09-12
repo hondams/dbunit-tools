@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "table", description = "Export table data from database to file")
+@Command(name = "empty", description = "Export table data from database to file")
 @Component
 @Slf4j
 public class ExportEmptyCommand implements Callable<Integer> {
@@ -34,7 +34,7 @@ public class ExportEmptyCommand implements Callable<Integer> {
     String scheme;
 
     @Option(names = {"-t", "--table"}, split = ",", required = true,//
-        description = "Table name. Specify only the table name. Pattern match using % is available.")
+        description = "Table name. Specify only the table name. Pattern match using %% is available.")
     String[] table;
 
     @Option(names = {"-e", "--exclude"}, split = ",",//

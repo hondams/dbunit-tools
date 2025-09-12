@@ -34,7 +34,7 @@ public class ExportTableCommand implements Callable<Integer> {
     String scheme;
 
     @Option(names = {"-t", "--table"}, split = ",", required = true, //
-        description = "Table name. Specify only the table name. Pattern match using % is available.")
+        description = "Table name. Specify only the table name. Pattern match using %% is available.")
     String[] table;
 
     @Option(names = {"-e", "--exclude"}, split = ",",//

@@ -34,7 +34,7 @@ public class SqlCountCommand implements Callable<Integer> {
         PrintLineAlignment.RIGHT);
 
     @Option(names = {"-t", "--table"}, split = ",",//
-        description = "Table name. Specify as [catalog.]schema.table. Pattern match using % is available.")
+        description = "Table name. Specify as [catalog.]schema.table. Pattern match using %% is available.")
     String[] table;
 
     @Autowired
