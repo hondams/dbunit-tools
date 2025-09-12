@@ -1,0 +1,37 @@
+# <Usage>
+# batch -f=command\printCommandError.txt
+
+batch -f=command\test\notFoundFile.txt
+
+export table -t=NOT_FOUND_TABLE -o=command\test\notDirectory\data.xml
+
+export table -t=NOT_FOUND_TABLE -o=command\test\data.xml
+
+export sql "SELECT * FROM DUAL"  -t=dummy -o=command\test\notDirectory\data.xml
+
+export empty -t=NOT_FOUND_TABLE -o=command\test\notDirectory\data.xml
+
+export empty -t=NOT_FOUND_TABLE -o=command\test\data.xml
+
+import -i=notFoundFile.txt
+
+dbdef column -t=NOT_FOUND_TABLE
+
+dbdef export  -t=NOT_FOUND_TABLE -o=command\test\notDirectory\dbdef.json
+
+dbdef diff -f1=command\test\notFoundFile.txt -f2=command\test\foundFile.txt
+
+dbdef diff -f1=command\test\foundFile.txt -f2=command\test\notFoundFile.txt
+
+sql query
+
+sql query "SELECT * FROM DUAL" -f=command\test\foundFile.txt
+
+sql query -f=command\test\notFoundFile.txt
+
+sql update
+
+sql update "SELECT * FROM DUAL" -f=command\test\foundFile.txt
+
+sql update -f=command\test\notFoundFile.txt
+

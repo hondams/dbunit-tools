@@ -1,0 +1,77 @@
+C:\projects\github\hondams\dbunit-tools>java -Dfile.encoding=UTF-8 -jar C:\projects\github\hondams\dbunit-tools\target\dbunit-tools-0.0.1-SNAPSHOT.jar
+Start conversation mode.
+ Use '-h' option to see usage.
+ Input 'exit' to exit.
+> batch -f=command\printCommandError.txt
+Start batch mode. file=C:\projects\github\hondams\dbunit-tools\command\printCommandError.txt
+> # <Usage>
+> # batch -f=command\printCommandError.txt
+>
+> batch -f=command\test\notFoundFile.txt
+File not found: C:\projects\github\hondams\dbunit-tools\command\test\notFoundFile.txt
+>
+> export table -t=NOT_FOUND_TABLE -o=command\test\notDirectory\data.xml
+Failed to create directories: command\test\notDirectory
+>
+> export table -t=NOT_FOUND_TABLE -o=command\test\data.xml
+Table not found: [NOT_FOUND_TABLE]
+>
+> export sql "SELECT * FROM DUAL"  -t=dummy -o=command\test\notDirectory\data.xml
+Failed to create directories: command\test\notDirectory
+>
+> export empty -t=NOT_FOUND_TABLE -o=command\test\notDirectory\data.xml
+Failed to create directories: command\test\notDirectory
+>
+> export empty -t=NOT_FOUND_TABLE -o=command\test\data.xml
+Table not found: [NOT_FOUND_TABLE]
+>
+> import -i=notFoundFile.txt
+File1 not found: C:\projects\github\hondams\dbunit-tools\notFoundFile.txt
+>
+> dbdef column -t=NOT_FOUND_TABLE
+Table not found: [NOT_FOUND_TABLE]
+>
+> dbdef export  -t=NOT_FOUND_TABLE -o=command\test\notDirectory\dbdef.json
+Failed to create directories: command\test\notDirectory
+>
+> dbdef diff -f1=command\test\notFoundFile.txt -f2=command\test\foundFile.txt
+File1 not found: C:\projects\github\hondams\dbunit-tools\command\test\notFoundFile.txt
+>
+> dbdef diff -f1=command\test\foundFile.txt -f2=command\test\notFoundFile.txt
+File2 not found: C:\projects\github\hondams\dbunit-tools\command\test\notFoundFile.txt
+>
+> sql query
+Usage: query [-f=<file>] [<sql>]
+Execute SQL query command
+      [<sql>]         SQL query to execute
+  -f, --file=<file>   File containing sql to execute
+Either <sql> or -file option is required.
+>
+> sql query "SELECT * FROM DUAL" -f=command\test\foundFile.txt
+Usage: query [-f=<file>] [<sql>]
+Execute SQL query command
+      [<sql>]         SQL query to execute
+  -f, --file=<file>   File containing sql to execute
+Either <sql> or -file option is required.
+>
+> sql query -f=command\test\notFoundFile.txt
+File not found: command\test\notFoundFile.txt
+>
+> sql update
+Usage: update [-f=<file>] [<sql>]
+Execute SQL update command
+      [<sql>]         SQL update to execute
+  -f, --file=<file>   File containing sql to execute
+Either <sql> or -file option is required.
+>
+> sql update "SELECT * FROM DUAL" -f=command\test\foundFile.txt
+Usage: update [-f=<file>] [<sql>]
+Execute SQL update command
+      [<sql>]         SQL update to execute
+  -f, --file=<file>   File containing sql to execute
+Either <sql> or -file option is required.
+>
+> sql update -f=command\test\notFoundFile.txt
+File not found: command\test\notFoundFile.txt
+>
+>

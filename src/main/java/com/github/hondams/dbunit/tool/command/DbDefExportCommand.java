@@ -39,7 +39,9 @@ public class DbDefExportCommand implements Callable<Integer> {
     public Integer call() throws Exception {
 
         File outputFile = new File(this.output);
-        if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+        File outputDirectory = outputFile.getParentFile();
+        if (outputDirectory != null//
+            && (!outputDirectory.isDirectory() || !outputDirectory.exists())) {
             boolean created = outputFile.getParentFile().mkdirs();
             if (!created) {
                 ConsolePrinter.println(log,
