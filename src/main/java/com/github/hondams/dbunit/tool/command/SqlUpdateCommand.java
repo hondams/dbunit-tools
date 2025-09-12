@@ -11,6 +11,8 @@ import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -19,6 +21,7 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "update", description = "Execute SQL update command")
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
 public class SqlUpdateCommand implements Callable<Integer> {
 
@@ -46,6 +49,7 @@ public class SqlUpdateCommand implements Callable<Integer> {
             }
             updateSql = Files.readString(sqlFile.toPath(), StandardCharsets.UTF_8);
         } else {
+            ConsolePrinter.println(log, "sql=" + this.sql + ", file=" + this.file);
             CommandLine cmd = new CommandLine(this);
             cmd.usage(System.out);
             ConsolePrinter.println(log, "Either <sql> or -file option is required.");

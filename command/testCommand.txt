@@ -1,0 +1,15 @@
+# <Usage>
+# batch -f=command/testCommand.txt
+
+sql update -f=command/test/sql/schema.sql
+
+sql update -f=command/test/sql/data.sql
+
+
+sql count -t=DBUNIT_TOOLS_%
+
+sql update "DROP TABLE dbunit_tools_users"
+
+sql update "DROP TABLE dbunit_tools_products"
+
+sql count -t=DBUNIT_TOOLS_%

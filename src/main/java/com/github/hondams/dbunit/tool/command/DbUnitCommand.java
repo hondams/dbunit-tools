@@ -1,11 +1,15 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import com.github.hondams.dbunit.tool.util.PicoUtils;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,6 +22,7 @@ import picocli.CommandLine.IFactory;
     description = "A set of tools for DbUnit",//
     subcommands = {BatchCommand.class, ConfigCommand.class, ConvertCommand.class,
         ExportCommand.class, ImportCommand.class, DbDefCommand.class, SqlCommand.class})
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
 public class DbUnitCommand implements Callable<Integer> {
 
@@ -47,7 +52,8 @@ public class DbUnitCommand implements Callable<Integer> {
                     if (line.trim().isEmpty()) {
                         commandLine.usage(System.out);
                     } else {
-                        String[] args = getArgs(line);
+                        String[] args = PicoUtils.getArgs(line);
+                        ConsolePrinter.println(log, "Executing command: " + List.of(args));
                         commandLine.execute(args);
                         if ("exit".equals(line)) {
                             exit = true;
@@ -60,26 +66,5 @@ public class DbUnitCommand implements Callable<Integer> {
             ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
-    }
-
-    private String[] getArgs(String line) {
-        String[] args = org.apache.commons.exec.CommandLine.parse(line).toStrings();
-        for (int i = 0; i < args.length; i++) {
-            args[i] = unescapeArgument(args[i]);
-        }
-        return args;
-    }
-
-    private String unescapeArgument(String arg) {
-        // 先頭と末尾のクォートを除去
-        if ((arg.startsWith("\"") && arg.endsWith("\""))//
-            || (arg.startsWith("'") && arg.endsWith("'"))) {
-            arg = arg.substring(1, arg.length() - 1);
-        }
-        // バックスラッシュでエスケープされたクォートやバックスラッシュを元に戻す
-        arg = arg.replace("\\\"", "\"")//
-            .replace("\\'", "'")//
-            .replace("\\\\", "\\");
-        return arg;
     }
 }

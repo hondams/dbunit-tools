@@ -1,13 +1,16 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import com.github.hondams.dbunit.tool.util.PicoUtils;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -16,6 +19,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "batch", description = "Execute commands from a file")
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
 public class BatchCommand implements Callable<Integer> {
 
@@ -49,7 +53,8 @@ public class BatchCommand implements Callable<Integer> {
             for (String line : lines) {
                 ConsolePrinter.println(log, "> " + line);
                 if (!line.trim().isEmpty() && !line.startsWith("#")) {
-                    String[] args = org.apache.commons.exec.CommandLine.parse(line).toStrings();
+                    String[] args = PicoUtils.getArgs(line);
+                    ConsolePrinter.println(log, "Executing command: " + List.of(args));
                     commandLine.execute(args);
                     if ("exit".equals(line)) {
                         break;
