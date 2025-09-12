@@ -1,24 +1,46 @@
-# Usage
+# <Usage>
 # batch -f=command\printCommandUsage.txt
+
 batch -h
+
 config -h
+
 config list -h
+
 config set -h
+
 convert -h
+
 export -h
+
 export table -h
+
 export sql -h
+
 export empty -h
+
 import -h
+
 dbdef -h
+
 dbdef catalog -h
+
 dbdef schema -h
+
 dbdef table -h
+
 dbdef column -h
+
 dbdef export -h
+
 dbdef diff -h
+
 sql -h
+
 sql query -h
+
 sql update -h
+
 sql count -h
+
 exit -h
