@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.ForwardOnlyResultSetTableFactory;
 import org.dbunit.database.QueryDataSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -87,6 +89,11 @@ public class ExportTableCommand implements Callable<Integer> {
 
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                 this.scheme);
+            if (DbUnitUtils.supportsStreamWrite(outputFile, this.format)) {
+                DatabaseConfig databaseConfig = databaseConnection.getConfig();
+                databaseConfig.setProperty(DatabaseConfig.PROPERTY_RESULTSET_TABLE_FACTORY,
+                    new ForwardOnlyResultSetTableFactory());
+            }
 
             QueryDataSet inputDataSet = new QueryDataSet(databaseConnection);
             for (CatalogNode catalogNode : databaseNode.getCatalogs()) {

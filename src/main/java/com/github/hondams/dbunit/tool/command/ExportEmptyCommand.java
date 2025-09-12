@@ -10,6 +10,7 @@ import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.model.TableNode;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.DatabaseUtils;
+import com.github.hondams.dbunit.tool.util.FileUtils;
 import com.github.hondams.dbunit.tool.util.SqlUtils;
 import java.io.File;
 import java.sql.Connection;
@@ -103,7 +104,13 @@ public class ExportEmptyCommand implements Callable<Integer> {
                 }
             }
 
-            DbUnitUtils.save(inputDataSet, outputFile, this.format);
+            // レコードなしの場合、FlatXmlだと、列情報が出力されないので、標準ではXmlで出力する。
+            DbUnitFileFormat dbUnitFileFormat = this.format;
+            String extension = FileUtils.getFileExtension(outputFile);
+            if ("xml".equalsIgnoreCase(extension) && this.format == null) {
+                dbUnitFileFormat = DbUnitFileFormat.XML;
+            }
+            DbUnitUtils.save(inputDataSet, outputFile, dbUnitFileFormat);
             ConsolePrinter.println(log, "Exported to " + outputFile.getAbsolutePath());
             return 0;
         } catch (Exception e) {

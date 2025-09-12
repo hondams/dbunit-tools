@@ -30,8 +30,6 @@ public class DatabaseConnectionFactory {
 
             IDataTypeFactory dataTypeFactory = createDataTypeFactory(productName);
             databaseConfig.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, dataTypeFactory);
-            databaseConfig.setProperty(DatabaseConfig.PROPERTY_RESULTSET_TABLE_FACTORY,
-                new ForwardOnlyResultSetTableFactory());
 
             if (productName != null && productName.equalsIgnoreCase("oracle")) {
                 databaseConfig.setProperty(DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES,

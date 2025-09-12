@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <table name="DBUNIT_TOOLS_PRODUCTS">
+    <column>ID</column>
+    <column>NAME</column>
+    <column>PRICE</column>
+  </table>
+  <table name="DBUNIT_TOOLS_USERS">
+    <column>ID</column>
+    <column>NAME</column>
+    <column>EMAIL</column>
+  </table>
+</dataset>

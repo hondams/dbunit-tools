@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <DBUNIT_TOOLS_PRODUCTS ID="1" NAME="りんご" PRICE="120.50"/>
+  <DBUNIT_TOOLS_PRODUCTS ID="2" NAME="みかん😀" PRICE="80.00"/>
+  <DBUNIT_TOOLS_USERS ID="1" NAME="山田太郎&amp;#x0;" EMAIL="taro@example.com"/>
+  <DBUNIT_TOOLS_USERS ID="2" NAME="鈴木花子" EMAIL="hanako@example.com"/>
+</dataset>

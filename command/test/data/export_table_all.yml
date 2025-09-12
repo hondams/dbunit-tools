@@ -1,0 +1,15 @@
+DBUNIT_TOOLS_PRODUCTS:
+  - ID: 1
+    NAME: りんご
+    PRICE: 120.50
+  - ID: 2
+    NAME: みかん😀
+    PRICE: 80.00
+DBUNIT_TOOLS_USERS:
+  - ID: 1
+    NAME: !!binary |-
+        5bGx55Sw5aSq6YOOAA==
+    EMAIL: taro@example.com
+  - ID: 2
+    NAME: 鈴木花子
+    EMAIL: hanako@example.com

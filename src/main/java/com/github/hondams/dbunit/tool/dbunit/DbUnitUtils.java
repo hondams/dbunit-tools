@@ -31,7 +31,6 @@ import org.dbunit.dataset.xml.FlatXmlProducer;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.dataset.xml.XmlProducer;
 import org.dbunit.dataset.yaml.YamlDataSet;
-import org.dbunit.dataset.yaml.YamlProducer;
 import org.xml.sax.InputSource;
 
 @UtilityClass
@@ -128,7 +127,7 @@ public class DbUnitUtils {
         } else if ("xls".equalsIgnoreCase(extension) || "xlsx".equalsIgnoreCase(extension)) {
             return loadXls(file);
         } else if ("yaml".equalsIgnoreCase(extension) || "yml".equalsIgnoreCase(extension)) {
-            return loadStreamingYaml(file);
+            return loadYaml(file);
         } else if (file.isDirectory()) {
             File tableOrderingFile = new File(file, CsvDataSet.TABLE_ORDERING_FILE);
             if (!tableOrderingFile.exists()) {
@@ -171,16 +170,6 @@ public class DbUnitUtils {
                 throw new UncheckedIOException(e);
             }
 
-        });
-    }
-
-    public IDataSet loadStreamingYaml(File file) {
-        return new ReCallableStreamingDataSet(() -> {
-            try {
-                return new YamlProducer(file);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
         });
     }
 
@@ -281,12 +270,27 @@ public class DbUnitUtils {
                     }
                     break;
                 case FLAT_XML:
+                    if (!"xml".equalsIgnoreCase(extension) && !"flatxml".equalsIgnoreCase(
+                        extension)) {
+                        throw new IllegalArgumentException(
+                            "When format is flatxml, file extension must be xml or flatxml: "
+                                + extension);
+                    }
                     saveFlatXml(dataSet, file);
                     break;
                 case XML:
+                    if (!"xml".equalsIgnoreCase(extension)) {
+                        throw new IllegalArgumentException(
+                            "When format is xml, file extension must be xml: " + extension);
+                    }
                     saveXml(dataSet, file);
                     break;
                 case YAML:
+                    if (!"yaml".equalsIgnoreCase(extension) && !"yml".equalsIgnoreCase(extension)) {
+                        throw new IllegalArgumentException(
+                            "When format is yaml, file extension must be yaml or yml: "
+                                + extension);
+                    }
                     saveYaml(dataSet, file);
                     break;
                 default:
@@ -425,6 +429,23 @@ public class DbUnitUtils {
             return new CompositeDataSet(dataSets.toArray(new IDataSet[0]));
         } catch (DataSetException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    public boolean supportsStreamWrite(File file, DbUnitFileFormat format) {
+        String extension = FileUtils.getFileExtension(file);
+        if ("xml".equalsIgnoreCase(extension)) {
+            return true;
+        } else if ("flatxml".equalsIgnoreCase(extension)) {
+            return true;
+        } else if ("xls".equalsIgnoreCase(extension) || "xlsx".equalsIgnoreCase(extension)) {
+            return false;
+        } else if ("yaml".equalsIgnoreCase(extension) || "yml".equalsIgnoreCase(extension)) {
+            return false;
+        } else if (file.isDirectory() || !file.exists()) {
+            return format == DbUnitFileFormat.CSV;
+        } else {
+            throw new IllegalArgumentException("Unsupported file extension: " + extension);
         }
     }
 }
