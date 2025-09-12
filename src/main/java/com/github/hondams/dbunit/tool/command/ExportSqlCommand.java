@@ -50,20 +50,23 @@ public class ExportSqlCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+
+        File outputFile = new File(this.output);
+        if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+            boolean created = outputFile.getParentFile().mkdirs();
+            if (!created) {
+                ConsolePrinter.println(log,
+                    "Failed to create directories: " + outputFile.getParentFile());
+                return 1;
+            }
+        }
+
         try (Connection connection = this.dataSource.getConnection()) {
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                 this.scheme);
             QueryDataSet inputDataSet = new QueryDataSet(databaseConnection);
             inputDataSet.addTable(this.table, this.sql);
 
-            File outputFile = new File(this.output);
-            if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
-                boolean created = outputFile.getParentFile().mkdirs();
-                if (!created) {
-                    throw new IllegalStateException(
-                        "Failed to create directories: " + outputFile.getParentFile());
-                }
-            }
             DbUnitUtils.save(inputDataSet, outputFile, this.format);
             ConsolePrinter.println(log, "Exported to " + outputFile.getAbsolutePath());
             return 0;

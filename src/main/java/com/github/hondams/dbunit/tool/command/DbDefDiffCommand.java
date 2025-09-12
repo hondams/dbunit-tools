@@ -63,16 +63,18 @@ public class DbDefDiffCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        try {
-            File inputFile1 = new File(this.file1);
-            if (!inputFile1.exists()) {
-                throw new IllegalStateException("File1 not found: " + inputFile1.getAbsolutePath());
-            }
-            File inputFile2 = new File(this.file2);
-            if (!inputFile2.exists()) {
-                throw new IllegalStateException("File2 not found: " + inputFile2.getAbsolutePath());
-            }
+        File inputFile1 = new File(this.file1);
+        if (!inputFile1.exists()) {
+            ConsolePrinter.println(log, "File1 not found: " + inputFile1.getAbsolutePath());
+            return 1;
+        }
+        File inputFile2 = new File(this.file2);
+        if (!inputFile2.exists()) {
+            ConsolePrinter.println(log, "File2 not found: " + inputFile2.getAbsolutePath());
+            return 1;
+        }
 
+        try {
             DatabaseNode databaseNode1 = this.objectMapper.readValue(inputFile1,
                 DatabaseNode.class);
             DatabaseNode databaseNode2 = this.objectMapper.readValue(inputFile2,

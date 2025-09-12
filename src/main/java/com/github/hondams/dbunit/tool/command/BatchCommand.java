@@ -1,8 +1,8 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +31,21 @@ public class BatchCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+
+        File batchFile = new File(this.file);
+        if (!batchFile.exists()) {
+            ConsolePrinter.println(log, "File not found: " + batchFile.getAbsolutePath());
+            return 1;
+        }
+
         try {
-            Path path = Path.of(this.file);
-            ConsolePrinter.println(log, "Start batch mode. file=" + path.toAbsolutePath());
+            ConsolePrinter.println(log, "Start batch mode. file=" + batchFile.getAbsolutePath());
 
             ConversationCommand conversationCommand = this.applicationContext.getBean(
                 ConversationCommand.class);
             CommandLine commandLine = new CommandLine(conversationCommand, this.factory);
 
-            List<String> lines = Files.readAllLines(path);
+            List<String> lines = Files.readAllLines(batchFile.toPath());
             for (String line : lines) {
                 ConsolePrinter.println(log, "> " + line);
                 if (!line.trim().isEmpty() && !line.startsWith("#")) {

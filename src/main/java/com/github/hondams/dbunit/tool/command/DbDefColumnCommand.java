@@ -51,7 +51,8 @@ public class DbDefColumnCommand implements Callable<Integer> {
             DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKeys);
 
             if (databaseNode.getCatalogs().isEmpty()) {
-                throw new IllegalStateException("Table not found: " + List.of(this.table));
+                ConsolePrinter.println(log, "Table not found: " + List.of(this.table));
+                return 1;
             }
 
             for (CatalogNode catalogNode : databaseNode.getCatalogs()) {

@@ -59,13 +59,25 @@ public class ExportEmptyCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+
+        File outputFile = new File(this.output);
+        if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+            boolean created = outputFile.getParentFile().mkdirs();
+            if (!created) {
+                ConsolePrinter.println(log,
+                    "Failed to create directories: " + outputFile.getParentFile());
+                return 1;
+            }
+        }
+
         try (Connection connection = this.dataSource.getConnection()) {
 
             List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
             DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKeys);
 
             if (databaseNode.getCatalogs().isEmpty()) {
-                throw new IllegalStateException("Table not found: " + List.of(this.table));
+                ConsolePrinter.println(log, "Table not found: " + List.of(this.table));
+                return 1;
             }
 
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
@@ -86,14 +98,6 @@ public class ExportEmptyCommand implements Callable<Integer> {
                 }
             }
 
-            File outputFile = new File(this.output);
-            if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
-                boolean created = outputFile.getParentFile().mkdirs();
-                if (!created) {
-                    throw new IllegalStateException(
-                        "Failed to create directories: " + outputFile.getParentFile());
-                }
-            }
             DbUnitUtils.save(inputDataSet, outputFile, this.format);
             ConsolePrinter.println(log, "Exported to " + outputFile.getAbsolutePath());
             return 0;

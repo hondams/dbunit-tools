@@ -40,8 +40,14 @@ public class ImportCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+
+        File inputFile = new File(this.input);
+        if (!inputFile.exists()) {
+            ConsolePrinter.println(log, "File1 not found: " + inputFile.getAbsolutePath());
+            return 1;
+        }
+
         try (Connection connection = this.dataSource.getConnection()) {
-            File inputFile = new File(this.input);
             IDataSet inputDataSet = DbUnitUtils.loadStreaming(inputFile);
 
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,

@@ -3,6 +3,9 @@ package com.github.hondams.dbunit.tool.command;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import com.github.hondams.dbunit.tool.util.PrintLineUtils;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -12,9 +15,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "query", description = "Execute SQL query command")
@@ -22,22 +28,44 @@ import picocli.CommandLine.Parameters;
 @Slf4j
 public class SqlQueryCommand implements Callable<Integer> {
 
-    @Parameters(index = "0", arity = "1",//
+    @Parameters(index = "0", arity = "0..1",//
         description = "SQL query to execute")
     String sql;
+
+    @Option(names = {"-f", "--file"},//
+        description = "File containing sql to execute")
+    String file;
 
     @Autowired
     DataSource dataSource;
 
     @Override
     public Integer call() throws Exception {
+
+        String querySql;
+        if (StringUtils.isNotEmpty(this.sql) && StringUtils.isEmpty(this.file)) {
+            querySql = this.sql;
+        } else if (StringUtils.isEmpty(this.sql) && StringUtils.isNotEmpty(this.file)) {
+            File sqlFile = new File(this.file);
+            if (!sqlFile.exists()) {
+                ConsolePrinter.println(log, "File not found: " + this.file);
+                return 1;
+            }
+            querySql = Files.readString(sqlFile.toPath(), StandardCharsets.UTF_8);
+        } else {
+            CommandLine cmd = new CommandLine(this);
+            cmd.usage(System.out);
+            ConsolePrinter.println(log, "Either <sql> or -file option is required.");
+            return 1;
+        }
+
         try (Connection connection = this.dataSource.getConnection()) {
             List<String> header = new ArrayList<>();
             List<PrintLineAlignment> alignments = new ArrayList<>();
             List<List<String>> rows = new ArrayList<>();
 
             try (Statement statement = connection.createStatement()) {
-                try (ResultSet resultSet = statement.executeQuery(this.sql)) {
+                try (ResultSet resultSet = statement.executeQuery(querySql)) {
                     ResultSetMetaData metaData = resultSet.getMetaData();
                     int columnCount = metaData.getColumnCount();
                     for (int i = 1; i <= columnCount; i++) {

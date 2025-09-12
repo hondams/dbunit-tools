@@ -1,6 +1,8 @@
 # <Usage>
 # batch -f=command\printCommandUsage.txt
 
+-h
+
 batch -h
 
 config -h
