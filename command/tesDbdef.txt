@@ -1,0 +1,11 @@
+# <Usage>
+# batch -f=command/tesDbdef.txt
+
+dbdef catalog
+
+dbdef schema
+
+dbdef table -t=DBUNIT_TOOLS_%
+
+dbdef column -t=DBUNIT_TOOLS_%
+
