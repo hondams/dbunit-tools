@@ -3,6 +3,7 @@ package com.github.hondams.dbunit.tool.dbunit;
 import com.github.hondams.dbunit.tool.util.FileUtils;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +13,11 @@ import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -89,10 +94,14 @@ public class DbUnitUtils {
     public IDataSet load(File file) {
         String extension = FileUtils.getFileExtension(file);
         if ("xml".equalsIgnoreCase(extension)) {
-            try {
-                return loadFlatXml(file);
-            } catch (Exception e) {
-                return loadXml(file);
+            DbUnitFileFormat format = getXmlFileFormat(file);
+            switch (format) {
+                case XML:
+                    return loadXml(file);
+                case FLAT_XML:
+                    return loadFlatXml(file);
+                default:
+                    throw new IllegalStateException("Unexpected value: " + format);
             }
         } else if ("flatxml".equalsIgnoreCase(extension)) {
             return loadFlatXml(file);
@@ -117,10 +126,14 @@ public class DbUnitUtils {
     public IDataSet loadStreaming(File file) {
         String extension = FileUtils.getFileExtension(file);
         if ("xml".equalsIgnoreCase(extension)) {
-            try {
-                return loadStreamingFlatXml(file);
-            } catch (Exception e) {
-                return loadStreamingXml(file);
+            DbUnitFileFormat format = getXmlFileFormat(file);
+            switch (format) {
+                case XML:
+                    return loadStreamingXml(file);
+                case FLAT_XML:
+                    return loadStreamingFlatXml(file);
+                default:
+                    throw new IllegalStateException("Unexpected value: " + format);
             }
         } else if ("flatxml".equalsIgnoreCase(extension)) {
             return loadStreamingFlatXml(file);
@@ -179,7 +192,7 @@ public class DbUnitUtils {
                 Reader reeder = new InputStreamReader(new FileInputStream(file),
                     StandardCharsets.UTF_8);
                 InputSource inputSource = new InputSource(reeder);
-                XmlProducer producer = new XmlProducer(inputSource);
+                XmlProducer producer = new BugFixedXmlProducer(inputSource);
                 return new ClosableDataSetProducer(producer, () -> {
                     try {
                         reeder.close();
@@ -356,7 +369,8 @@ public class DbUnitUtils {
     public void saveXml(IDataSet dataSet, File file) {
         try (Writer writer = new OutputStreamWriter(//
             new FileOutputStream(file), StandardCharsets.UTF_8)) {
-            XmlDataSet.write(dataSet, writer);
+            BugFixedXmlDataSetWriter datasetWriter = new BugFixedXmlDataSetWriter(writer);
+            datasetWriter.write(dataSet);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (DataSetException e) {
@@ -446,6 +460,53 @@ public class DbUnitUtils {
             return format == DbUnitFileFormat.CSV;
         } else {
             throw new IllegalArgumentException("Unsupported file extension: " + extension);
+        }
+    }
+
+    private DbUnitFileFormat getXmlFileFormat(File file) {
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLStreamReader reader = factory.createXMLStreamReader(new FileInputStream(file));
+            List<String> elementNames = new ArrayList<>();
+            while (reader.hasNext()) {
+                int eventType = reader.next();
+                if (eventType == XMLStreamReader.START_ELEMENT) {
+                    elementNames.add(reader.getLocalName());
+                } else if (eventType == XMLStreamReader.END_ELEMENT) {
+                    elementNames.remove(elementNames.size() - 1);
+                }
+                log.info("elementNames={}", elementNames);
+                switch (elementNames.size()) {
+                    case 1:
+                        if ("dataset".equals(elementNames.get(0))) {
+                            continue;
+                        } else {
+                            throw new IllegalArgumentException(
+                                "Root element must be dataset: " + elementNames.get(0));
+                        }
+                        break;
+                    case 2:
+                        if ("table".equals(elementNames.get(1))) {
+                            continue;
+                        } else {
+                            return DbUnitFileFormat.FLAT_XML;
+                        }
+                        break;
+                    case 3:
+                        if ("column".equals(elementNames.get(2))) {
+                            return DbUnitFileFormat.XML;
+                        } else {
+                            throw new IllegalArgumentException(
+                                "Unexpected element: " + elementNames.get(2));
+                        }
+                    default:
+                        throw new IllegalStateException(
+                            "Unexpected element depth: " + elementNames.size());
+                }
+            }
+            throw new IllegalArgumentException("No elements found in file: " + file);
+        } catch (FileNotFoundException | XMLStreamException e) {
+            throw new IllegalStateException(e);
         }
     }
 }

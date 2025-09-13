@@ -67,6 +67,59 @@ export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=USER01 -t=DBUNIT_
 
 export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=USER01 -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql_csv -f=CSV
 
+
+import -s=PUBLIC -i=command/test/data/export_empty.xml
+
+import -s=PUBLIC -i=command/test/data/export_table.xml
+
+import -s=PUBLIC -i=command/test/data/export_sql.xml
+
+import -s=PUBLIC -i=command/test/data/export_empty_all.xml
+
+import -s=PUBLIC -i=command/test/data/export_table_all.xml
+
+import -s=PUBLIC -i=command/test/data/export_sql.xls
+
+import -s=PUBLIC -i=command/test/data/export_empty_all.xls
+
+import -s=PUBLIC -i=command/test/data/export_table_all.xls
+
+import -s=PUBLIC -i=command/test/data/export_sql.xlsx
+
+import -s=PUBLIC -i=command/test/data/export_empty_all.xlsx
+
+import -s=PUBLIC -i=command/test/data/export_table_all.xlsx
+
+import -s=PUBLIC -i=command/test/data/export_sql_xml.xml
+
+import -s=PUBLIC -i=command/test/data/export_empty_all_xml.xml
+
+import -s=PUBLIC -i=command/test/data/export_table_all_xml.xml
+
+import -s=PUBLIC -i=command/test/data/export_sql.yaml
+
+import -s=PUBLIC -i=command/test/data/export_empty_all_flatxml.xml
+
+import -s=PUBLIC -i=command/test/data/export_table_all.yaml
+
+import -s=PUBLIC -i=command/test/data/export_empty_all.yaml
+
+import -s=PUBLIC -i=command/test/data/export_table_all.yml
+
+import -s=PUBLIC -i=command/test/data/export_sql.yml
+
+import -s=PUBLIC -i=command/test/data/export_empty_all.yml
+
+import -s=PUBLIC -i=command/test/data/export_table_all_csv
+
+import -s=PUBLIC -i=command/test/data/export_sql_csv
+
+import -s=PUBLIC -i=command/test/data/export_empty_all_csv
+
+
+
+
+
 sql update "DROP TABLE dbunit_tools_users"
 
 sql update "DROP TABLE dbunit_tools_products"
