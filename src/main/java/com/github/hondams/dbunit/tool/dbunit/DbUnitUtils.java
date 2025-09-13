@@ -475,7 +475,7 @@ public class DbUnitUtils {
                 } else if (eventType == XMLStreamReader.END_ELEMENT) {
                     elementNames.remove(elementNames.size() - 1);
                 }
-                log.info("elementNames={}", elementNames);
+                log.debug("elementNames={}", elementNames);
                 switch (elementNames.size()) {
                     case 1:
                         if ("dataset".equals(elementNames.get(0))) {
@@ -484,14 +484,12 @@ public class DbUnitUtils {
                             throw new IllegalArgumentException(
                                 "Root element must be dataset: " + elementNames.get(0));
                         }
-                        break;
                     case 2:
                         if ("table".equals(elementNames.get(1))) {
                             continue;
                         } else {
                             return DbUnitFileFormat.FLAT_XML;
                         }
-                        break;
                     case 3:
                         if ("column".equals(elementNames.get(2))) {
                             return DbUnitFileFormat.XML;
