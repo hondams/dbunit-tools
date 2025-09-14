@@ -9,13 +9,17 @@ public class ColumnNode {
 
     private int location;
     private String columnName;
-    private String sqlTypeName;
+    private String dataTypeName;
+    private int sqlType;
 
-    private String typeName;
+    private String sqlTypeName;
     private int columnSize;
     @JsonInclude(Include.NON_NULL)
     private Integer decimalDigits;
+    private String remark;
+    private String defaultValue;
     private String nullable;
+    private String autoIncrement;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer keyIndex;
 }

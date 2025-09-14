@@ -19,9 +19,15 @@ dbdef column -t=NOT_FOUND_TABLE
 
 dbdef export  -t=NOT_FOUND_TABLE -o=command/test/notDirectory/dbdef.json
 
-dbdef diff -f1=command/test/notFoundFile.txt -f2=command/test/foundFile.txt
+diff dbdef -f1=command/test/notFoundFile.txt -f2=command/test/foundFile.txt
 
-dbdef diff -f1=command/test/foundFile.txt -f2=command/test/notFoundFile.txt
+diff dbdef -f1=command/test/foundFile.txt -f2=command/test/notFoundFile.txt
+
+diff data -d=command/test/notFoundFile.txt -f1=command/test/foundFile.txt -f2=command/test/foundFile.txt
+
+diff data -d=command/test/foundFile.txt -f1=command/test/notFoundFile.txt -f2=command/test/foundFile.txt
+
+diff data -d=command/test/foundFile.txt -f1=command/test/foundFile.txt -f2=command/test/notFoundFile.txt
 
 sql query
 

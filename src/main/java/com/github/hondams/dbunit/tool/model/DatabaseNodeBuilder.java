@@ -5,23 +5,35 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Slf4j
 public class DatabaseNodeBuilder {
 
+    @Setter
+    private String productName;
     private final Map<CatalogKey, CatalogNode> catalogMap = new LinkedHashMap<>();
     private final Map<SchemaKey, SchemaNode> schemaMap = new HashMap<>();
     private final Map<TableKey, TableNode> tableMap = new HashMap<>();
 
     public DatabaseNode build() {
         DatabaseNode databaseNode = new DatabaseNode();
+        databaseNode.setProductName(this.productName);
         databaseNode.getCatalogs().addAll(this.catalogMap.values());
         return databaseNode;
     }
 
-    public void append(List<ColumnDefinition> columns) {
+    public void appendTable(List<TableDefinition> tables) {
+        for (TableDefinition table : tables) {
+            TableKey tableKey = TableKey.fromTableDefinition(table);
+            TableNode tableNode = getTableNode(tableKey);
+            tableNode.setTableType(table.getTableType());
+        }
+    }
+
+    public void appendColumn(List<ColumnDefinition> columns) {
         for (ColumnDefinition column : columns) {
             append(column);
         }
@@ -31,11 +43,15 @@ public class DatabaseNodeBuilder {
 
         ColumnNode node = new ColumnNode();
         node.setColumnName(column.getColumnName());
+        node.setDataTypeName(column.getDataTypeName());
+        node.setSqlType(column.getSqlType());
         node.setSqlTypeName(column.getSqlTypeName());
-        node.setTypeName(column.getTypeName());
         node.setColumnSize(column.getColumnSize());
         node.setDecimalDigits(column.getDecimalDigits());
         node.setNullable(column.getNullable());
+        node.setRemark(column.getRemark());
+        node.setDefaultValue(column.getDefaultValue());
+        node.setAutoIncrement(column.getAutoIncrement());
         node.setKeyIndex(column.getKeyIndex());
 
         TableKey tableKey = TableKey.fromColumnDefinition(column);

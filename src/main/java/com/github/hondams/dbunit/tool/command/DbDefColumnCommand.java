@@ -31,13 +31,13 @@ import picocli.CommandLine.Option;
 public class DbDefColumnCommand implements Callable<Integer> {
 
     private static final List<String> HEADER = List.of(//
-        "ColumnName", "SqlTypeName", "TypeName",//
-        "ColumnSize", "DecimalDigits", "Nullable",//
-        "KeyIndex");
+        "ColumnName", "SqlType", "SqlTypeName",//
+        "DataTypeName", "ColumnSize", "DecimalDigits",//
+        "Nullable", "DefaultValue", "KeyIndex");
     private static final List<PrintLineAlignment> ALIGNMENTS = List.of(//
-        PrintLineAlignment.LEFT, PrintLineAlignment.LEFT, PrintLineAlignment.LEFT,//
-        PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
-        PrintLineAlignment.RIGHT);
+        PrintLineAlignment.LEFT, PrintLineAlignment.RIGHT, PrintLineAlignment.LEFT,//
+        PrintLineAlignment.LEFT, PrintLineAlignment.RIGHT, PrintLineAlignment.RIGHT,//
+        PrintLineAlignment.LEFT, PrintLineAlignment.LEFT, PrintLineAlignment.RIGHT);
 
     @Option(names = {"-t", "--table"}, split = ",", required = true,//
         description = "Table name. Specify as [catalog.]schema.table. Pattern match using %% is available.")
@@ -69,17 +69,21 @@ public class DbDefColumnCommand implements Callable<Integer> {
                                 tableNode.getTableName())));
                         for (ColumnNode columnNode : tableNode.getColumns()) {
                             String columnName = columnNode.getColumnName();
+                            String sqlType = String.valueOf(columnNode.getSqlType());
                             String sqlTypeName = columnNode.getSqlTypeName();
-                            String typeName = columnNode.getTypeName();
+                            String dataTypeName = columnNode.getDataTypeName();
                             String columnSize = String.valueOf(columnNode.getColumnSize());
                             String decimalDigits = columnNode.getDecimalDigits() == null ? ""
                                 : String.valueOf(columnNode.getDecimalDigits());
                             String nullable = columnNode.getNullable();
+                            String defaultValue = columnNode.getDefaultValue() == null ? ""
+                                : columnNode.getDefaultValue();
                             String keyIndex = columnNode.getKeyIndex() == null ? ""
                                 : String.valueOf(columnNode.getKeyIndex());
 
-                            rows.add(List.of(columnName, sqlTypeName, typeName, columnSize,
-                                decimalDigits, nullable, keyIndex));
+                            rows.add(List.of(columnName, sqlType, sqlTypeName,//
+                                dataTypeName, columnSize, decimalDigits,//
+                                nullable, defaultValue, keyIndex));
                         }
                         List<String> lines = PrintLineUtils.getTableLines("", HEADER, ALIGNMENTS,
                             rows);

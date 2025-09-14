@@ -35,7 +35,11 @@ dbdef column -h
 
 dbdef export -h
 
-dbdef diff -h
+diff -h
+
+diff dbdef -h
+
+diff data -h
 
 sql -h
 

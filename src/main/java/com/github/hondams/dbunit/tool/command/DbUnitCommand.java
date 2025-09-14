@@ -21,7 +21,8 @@ import picocli.CommandLine.IFactory;
     version = "dbunit-tools 1.0.0",//
     description = "A set of tools for DbUnit",//
     subcommands = {BatchCommand.class, ConfigCommand.class, ConvertCommand.class,
-        ExportCommand.class, ImportCommand.class, DbDefCommand.class, SqlCommand.class})
+        DbDefCommand.class, DiffCommand.class, ExportCommand.class, ImportCommand.class,
+        SqlCommand.class})
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
 public class DbUnitCommand implements Callable<Integer> {

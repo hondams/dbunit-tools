@@ -7,5 +7,6 @@ import lombok.Data;
 @Data
 public class DatabaseNode {
 
+    private String productName;
     private List<CatalogNode> catalogs = new ArrayList<>();
 }

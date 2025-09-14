@@ -174,6 +174,7 @@ public class DbUnitUtils {
                 producer.setColumnSensing(true);
                 return new ClosableDataSetProducer(producer, () -> {
                     try {
+                        log.info("Closing reader");
                         reeder.close();
                     } catch (IOException e) {
                         log.debug("Failed to close reader", e);

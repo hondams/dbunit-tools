@@ -10,13 +10,17 @@ public class ColumnDefinition {
     private String schemaName;
     private String tableName;
     private String columnName;
+    private String dataTypeName;
+    private int sqlType;
     private String sqlTypeName;
-
-    private String typeName;
     private int columnSize;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer decimalDigits;
+    private String remark;
+    private String defaultValue;
     private String nullable;
+    private String autoIncrement;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer keyIndex;
 }

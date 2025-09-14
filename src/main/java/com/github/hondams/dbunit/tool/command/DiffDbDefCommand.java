@@ -26,11 +26,11 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "diff", description = "Compare two database definition files")
+@Command(name = "dbdef", description = "Compare two database definition files")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
-public class DbDefDiffCommand implements Callable<Integer> {
+public class DiffDbDefCommand implements Callable<Integer> {
 
     private static final List<String> TABLE_DIFF_HEADER = List.of(//
         "Table",//
@@ -54,10 +54,10 @@ public class DbDefDiffCommand implements Callable<Integer> {
         PrintLineAlignment.LEFT);
 
     @Option(names = {"-f1", "--file1"}, required = true,//
-        description = "Database definition file 1. Specify a file exported by dbdef export.")
+        description = "Database definition file 1. Specify a file exported by dbdef export command.")
     String file1;
     @Option(names = {"-f2", "--file2"}, required = true,//
-        description = "Database definition file 2. Specify a file exported by dbdef export.")
+        description = "Database definition file 2. Specify a file exported by dbdef export command.")
     String file2;
 
     @Autowired
@@ -190,14 +190,19 @@ public class DbDefDiffCommand implements Callable<Integer> {
                                 String.valueOf(columnNode1.getLocation()),
                                 String.valueOf(columnNode2.getLocation())));
                         }
+                        if (columnNode1.getSqlType() != columnNode2.getSqlType()) {
+                            rows.add(List.of(columnName, "Different", "SqlType",
+                                String.valueOf(columnNode1.getSqlType()),
+                                String.valueOf(columnNode2.getSqlType())));
+                        }
                         if (!Objects.equals(columnNode1.getSqlTypeName(),
                             columnNode2.getSqlTypeName())) {
                             rows.add(List.of(columnName, "Different", "SqlTypeName",
                                 columnNode1.getSqlTypeName(), columnNode2.getSqlTypeName()));
                         }
-                        if (!Objects.equals(columnNode1.getTypeName(), columnNode2.getTypeName())) {
-                            rows.add(List.of(columnName, "Different", "TypeName",
-                                columnNode1.getTypeName(), columnNode2.getTypeName()));
+                        if (!Objects.equals(columnNode1.getSqlType(), columnNode2.getSqlType())) {
+                            rows.add(List.of(columnName, "Different", "DataTypeName",
+                                columnNode1.getDataTypeName(), columnNode2.getDataTypeName()));
                         }
                         if (!Objects.equals(columnNode1.getColumnSize(),
                             columnNode2.getColumnSize())) {

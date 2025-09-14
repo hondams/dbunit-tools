@@ -8,5 +8,6 @@ import lombok.Data;
 public class TableNode {
 
     private String tableName;
+    private String tableType;
     private List<ColumnNode> columns = new ArrayList<>();
 }

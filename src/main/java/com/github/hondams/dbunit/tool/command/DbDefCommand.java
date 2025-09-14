@@ -13,7 +13,7 @@ import picocli.CommandLine.IFactory;
 @Command(name = "dbdef",//
     description = "Print database definition information",//
     subcommands = {DbDefCatalogCommand.class, DbDefSchemaCommand.class, DbDefTableCommand.class,
-        DbDefColumnCommand.class, DbDefExportCommand.class, DbDefDiffCommand.class})
+        DbDefColumnCommand.class, DbDefExportCommand.class})
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j

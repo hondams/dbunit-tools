@@ -1,5 +1,5 @@
 # <Usage>
-# batch -f=command/testCommand.txt
+# batch -f=command/testAllCommand.txt
 
 sql update -f=command/test/sql/schema.sql
 
