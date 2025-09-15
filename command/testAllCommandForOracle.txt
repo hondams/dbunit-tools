@@ -1,0 +1,24 @@
+# <Usage>
+# batch -f=command/testAllCommandForOracle.txt
+
+sql update -f=command/test/sql/schema_oracle.sql
+
+sql update -f=command/test/sql/data.sql
+
+sql count -t=DBUNIT_TOOLS_%
+
+sql query -f=command/test/sql/query.sql
+
+sql query "SELECT * FROM dbunit_tools_users"
+
+
+batch -f=command/tesDbdef.txt
+
+batch -f=command/testExportAndImportForOracle.txt
+
+
+sql update "DROP TABLE dbunit_tools_users"
+
+sql update "DROP TABLE dbunit_tools_products"
+
+sql count -t=DBUNIT_TOOLS_%
