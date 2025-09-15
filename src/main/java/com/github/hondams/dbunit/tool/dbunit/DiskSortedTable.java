@@ -5,8 +5,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeSet;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.dbunit.dataset.AbstractTable;
@@ -23,23 +22,15 @@ public class DiskSortedTable extends AbstractTable {
 
     private final List<DiskSortedTableReader> tableReaders;
 
-    private final Map<List<Comparable<Object>>, DiskSortedTableReader> readerMap =//
-        new TreeMap<>(DiskSortedTableRecordComparator.INSTANCE);
-
-    private final boolean hasPrimaryKey;
-
-    private int index = -1;
+    private DiskSortedTableReader reader;
+    private int readerIndex = -1;
+    private int rowIndex = -1;
     private LinkedHashMap<String, Comparable<Object>> row;
 
     public DiskSortedTable(ITableMetaData tableMetaData, File tableDirectory)
         throws DataSetException {
         this.tableMetaData = tableMetaData;
-        this.hasPrimaryKey = hasPrimaryKey(tableMetaData);
         this.tableReaders = createTableReaders(tableMetaData, tableDirectory);
-    }
-
-    private boolean hasPrimaryKey(ITableMetaData tableMetaData) throws DataSetException {
-        return (tableMetaData.getPrimaryKeys().length != 0);
     }
 
     private List<DiskSortedTableReader> createTableReaders(ITableMetaData tableMetaData,
@@ -47,7 +38,7 @@ public class DiskSortedTable extends AbstractTable {
         List<DiskSortedTableReader> readers = new ArrayList<>();
         File[] files = tableDirectory.listFiles();
         if (files != null) {
-            for (File file : files) {
+            for (File file : new TreeSet<>(List.of(files))) {
                 if (file.isFile()) {
                     String extension = FileUtils.getFileExtension(file);
                     if (extension != null && extension.equalsIgnoreCase("xml")) {
@@ -66,11 +57,8 @@ public class DiskSortedTable extends AbstractTable {
 
     @Override
     public Object getValue(int row, String column) throws DataSetException {
-        if (this.index < 0) {
-            for (DiskSortedTableReader reader : this.tableReaders) {
-                putNextKey(reader);
-            }
-            this.index = 0;
+        if (this.rowIndex < 0) {
+            this.rowIndex = 0;
             setNextRow();
         } else {
             if (this.row == null) {
@@ -78,7 +66,7 @@ public class DiskSortedTable extends AbstractTable {
             }
         }
 
-        int diff = row - this.index;
+        int diff = row - this.rowIndex;
         if (diff < 0) {
             throw new IllegalStateException("Cannot move backward");
         } else if (diff == 0) {
@@ -88,12 +76,12 @@ public class DiskSortedTable extends AbstractTable {
             return this.row.get(column);
         } else {
             for (int i = 0; i < diff - 1; i++) {
-                this.index++;
+                this.rowIndex++;
                 setNextRow();
                 log.warn("Skipped row: table={}, row={}", this.tableMetaData.getTableName(),
-                    this.index);
+                    this.rowIndex);
             }
-            this.index++;
+            this.rowIndex++;
             setNextRow();
             if (!this.row.containsKey(column)) {
                 throw new NoSuchColumnException(this.tableMetaData.getTableName(), column);
@@ -103,48 +91,28 @@ public class DiskSortedTable extends AbstractTable {
     }
 
     private void setNextRow() throws DataSetException {
-        List<Comparable<Object>> nexKey = getNextKey();
-        if (nexKey == null) {
+        if (this.reader != null && !this.reader.next()) {
+            this.row = this.reader.getRow();
+        } else {
+            setNextReader();
+            while (this.reader != null) {
+                if (!this.reader.next()) {
+                    this.row = this.reader.getRow();
+                    return;
+                }
+                setNextReader();
+            }
             this.row = null;
             throw new RowOutOfBoundsException();
+        }
+    }
+
+    private void setNextReader() {
+        this.readerIndex++;
+        if (this.readerIndex < this.tableReaders.size()) {
+            this.reader = this.tableReaders.get(this.readerIndex);
         } else {
-            DiskSortedTableReader reader = this.readerMap.get(nexKey);
-            this.row = reader.getRow();
-            this.readerMap.remove(nexKey);
-            putNextKey(reader);
+            this.reader = null;
         }
-    }
-
-    private List<Comparable<Object>> getNextKey() {
-        for (List<Comparable<Object>> key : this.readerMap.keySet()) {
-            return key;
-        }
-        return null;
-    }
-
-
-    private void putNextKey(DiskSortedTableReader reader) throws DataSetException {
-        while (reader.next()) {
-            List<Comparable<Object>> key = getReaderKey(reader);
-            DiskSortedTableReader duplicatedReader = this.readerMap.get(key);
-            if (duplicatedReader != null) {
-                log.warn("Duplicate key: {} files=[{}, {}]", key,//
-                    duplicatedReader.getFile().getAbsolutePath(),//
-                    reader.getFile().getAbsolutePath());
-            } else {
-                this.readerMap.put(key, reader);
-                break;
-            }
-        }
-    }
-
-    private List<Comparable<Object>> getReaderKey(DiskSortedTableReader reader)
-        throws DataSetException {
-        if (this.hasPrimaryKey) {
-            return reader.getKeyValues();
-        } else {
-            return reader.getRowValues();
-        }
-
     }
 }

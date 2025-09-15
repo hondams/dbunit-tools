@@ -28,7 +28,7 @@ public class MergingDiskSortedTable extends AbstractTable {
 
     private final boolean hasPrimaryKey;
 
-    private int index = -1;
+    private int rowIndex = -1;
     private LinkedHashMap<String, Comparable<Object>> row;
 
     public MergingDiskSortedTable(ITableMetaData tableMetaData, File tableDirectory)
@@ -66,11 +66,11 @@ public class MergingDiskSortedTable extends AbstractTable {
 
     @Override
     public Object getValue(int row, String column) throws DataSetException {
-        if (this.index < 0) {
+        if (this.rowIndex < 0) {
             for (DiskSortedTableReader reader : this.tableReaders) {
                 putNextKey(reader);
             }
-            this.index = 0;
+            this.rowIndex = 0;
             setNextRow();
         } else {
             if (this.row == null) {
@@ -78,7 +78,7 @@ public class MergingDiskSortedTable extends AbstractTable {
             }
         }
 
-        int diff = row - this.index;
+        int diff = row - this.rowIndex;
         if (diff < 0) {
             throw new IllegalStateException("Cannot move backward");
         } else if (diff == 0) {
@@ -88,12 +88,12 @@ public class MergingDiskSortedTable extends AbstractTable {
             return this.row.get(column);
         } else {
             for (int i = 0; i < diff - 1; i++) {
-                this.index++;
+                this.rowIndex++;
                 setNextRow();
                 log.warn("Skipped row: table={}, row={}", this.tableMetaData.getTableName(),
-                    this.index);
+                    this.rowIndex);
             }
-            this.index++;
+            this.rowIndex++;
             setNextRow();
             if (!this.row.containsKey(column)) {
                 throw new NoSuchColumnException(this.tableMetaData.getTableName(), column);

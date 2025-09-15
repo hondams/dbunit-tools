@@ -20,6 +20,7 @@
         <commons-exec.version>1.5.0</commons-exec.version>
         <poi.version>5.4.1</poi.version>
         <ojdbc8.version>23.9.0.25.07</ojdbc8.version>
+        <jsqlparser.version>5.3</jsqlparser.version>
     </properties>
     <dependencies>
         <dependency>
@@ -54,7 +55,11 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>${jsqlparser.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

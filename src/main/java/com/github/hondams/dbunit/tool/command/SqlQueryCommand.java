@@ -9,12 +9,14 @@ import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -64,42 +66,57 @@ public class SqlQueryCommand implements Callable<Integer> {
         }
 
         try (Connection connection = this.dataSource.getConnection()) {
-            List<String> header = new ArrayList<>();
-            List<PrintLineAlignment> alignments = new ArrayList<>();
-            List<List<String>> rows = new ArrayList<>();
 
             try (Statement statement = connection.createStatement()) {
-                try (ResultSet resultSet = statement.executeQuery(querySql)) {
-                    ResultSetMetaData metaData = resultSet.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-                    for (int i = 1; i <= columnCount; i++) {
-                        header.add(metaData.getColumnName(i));
-                        int columnType = metaData.getColumnType(i);
-                        switch (columnType) {
-                            case java.sql.Types.INTEGER:
-                            case java.sql.Types.BIGINT:
-                            case java.sql.Types.DECIMAL:
-                            case java.sql.Types.NUMERIC:
-                            case java.sql.Types.FLOAT:
-                            case java.sql.Types.REAL:
-                            case java.sql.Types.DOUBLE:
-                                alignments.add(PrintLineAlignment.RIGHT);
-                                break;
-                            default:
-                                alignments.add(PrintLineAlignment.LEFT);
-                        }
-                    }
-
-                    while (resultSet.next()) {
-                        List<String> row = new ArrayList<>();
-                        for (int i = 1; i <= columnCount; i++) {
-                            row.add(toString(resultSet.getObject(i)));
-                        }
-                        rows.add(row);
-                    }
+                for (net.sf.jsqlparser.statement.Statement sqlStatement ://
+                    CCJSqlParserUtil.parseStatements(querySql)) {
+                    String executingSql = sqlStatement.toString();
+                    executeSql(statement, executingSql);
                 }
             }
 
+            return 0;
+        } catch (Exception e) {
+            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
+            return 1;
+        }
+    }
+
+    private void executeSql(Statement statement, String executingSql) throws SQLException {
+        ConsolePrinter.println(log,
+            "Executing SQL: " + executingSql.replace("\r\n", " ").replace("\r", " ")
+                .replace("\n", " "));
+        List<String> header = new ArrayList<>();
+        List<PrintLineAlignment> alignments = new ArrayList<>();
+        List<List<String>> rows = new ArrayList<>();
+        try (ResultSet resultSet = statement.executeQuery(executingSql)) {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            for (int i = 1; i <= columnCount; i++) {
+                header.add(metaData.getColumnName(i));
+                int columnType = metaData.getColumnType(i);
+                switch (columnType) {
+                    case java.sql.Types.INTEGER:
+                    case java.sql.Types.BIGINT:
+                    case java.sql.Types.DECIMAL:
+                    case java.sql.Types.NUMERIC:
+                    case java.sql.Types.FLOAT:
+                    case java.sql.Types.REAL:
+                    case java.sql.Types.DOUBLE:
+                        alignments.add(PrintLineAlignment.RIGHT);
+                        break;
+                    default:
+                        alignments.add(PrintLineAlignment.LEFT);
+                }
+            }
+
+            while (resultSet.next()) {
+                List<String> row = new ArrayList<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    row.add(toString(resultSet.getObject(i)));
+                }
+                rows.add(row);
+            }
             if (header.isEmpty()) {
                 ConsolePrinter.println(log,
                     "The query did not return any columns. rows=" + rows.size());
@@ -109,11 +126,8 @@ public class SqlQueryCommand implements Callable<Integer> {
                     ConsolePrinter.println(log, line);
                 }
             }
-            return 0;
-        } catch (Exception e) {
-            ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
-            return 1;
         }
+        ConsolePrinter.println(log, "");
     }
 
     private String toString(Object obj) {

@@ -5,10 +5,12 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -58,13 +60,25 @@ public class SqlUpdateCommand implements Callable<Integer> {
 
         try (Connection connection = this.dataSource.getConnection()) {
             try (Statement statement = connection.createStatement()) {
-                int result = statement.executeUpdate(updateSql);
-                ConsolePrinter.println(log, "Result: " + result);
+                for (net.sf.jsqlparser.statement.Statement sqlStatement ://
+                    CCJSqlParserUtil.parseStatements(updateSql)) {
+                    String executingSql = sqlStatement.toString();
+                    executeSql(statement, executingSql);
+                }
             }
             return 0;
         } catch (Exception e) {
             ConsolePrinter.printError(log, "Error: " + e.getMessage(), e);
             return 1;
         }
+    }
+
+    private void executeSql(Statement statement, String executingSql) throws SQLException {
+        ConsolePrinter.println(log,
+            "Executing SQL: " + executingSql.replace("\r\n", " ").replace("\r", " ")
+                .replace("\n", " "));
+        int result = statement.executeUpdate(executingSql);
+        ConsolePrinter.println(log, "Result: " + result);
+        ConsolePrinter.println(log, "");
     }
 }
