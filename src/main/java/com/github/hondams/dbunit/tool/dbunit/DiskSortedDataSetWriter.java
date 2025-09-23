@@ -86,12 +86,23 @@ public class DiskSortedDataSetWriter {
         }
     }
 
-
     public void write() throws DataSetException {
         writeDbdefFile();
         for (WritingTable writingTable : this.writingTableMap.values()) {
             writeTableFiles(writingTable);
         }
+    }
+
+    public List<String> getTableNames() {
+        return new ArrayList<>(this.writingTableMap.keySet());
+    }
+
+    public void setMergeMode(String tableName, TableMergeMode mergeMode) {
+        WritingTable writingTable = this.writingTableMap.get(tableName);
+        if (writingTable == null) {
+            throw new IllegalArgumentException("Table not found: " + tableName);
+        }
+        writingTable.setMergeMode(mergeMode);
     }
 
     private List<TableKey> getWritingTableKeys() {
@@ -118,21 +129,24 @@ public class DiskSortedDataSetWriter {
             }
         }
 
-        Column[] inputColumns = inputTable.getTableMetaData().getColumns();
         Column[] columns = writingTable.getTableMetaData().getColumns();
+        Column[] inputColumns = inputTable.getTableMetaData().getColumns();
+
         int columnCount = columns.length;
-        int[] columnIndexes = new int[columnCount];
-        for (int i = 0; i < columnIndexes.length; i++) {
+        int[] inputColumnIndexes = new int[columnCount];
+
+        for (int i = 0; i < inputColumnIndexes.length; i++) {
             Column column = columns[i];
-            columnIndexes[i] = indexOf(inputTable.getTableMetaData(), column.getColumnName());
+            inputColumnIndexes[i] = columIndexOf(inputTable.getTableMetaData(),
+                column.getColumnName());
         }
 
         DefaultTable tempTable = new DefaultTable(writingTable.getTableMetaData());
         try {
             for (int rowIndex = 0; ; rowIndex++) {
                 Object[] rowValues = new Object[columnCount];
-                for (int columnIndex = 0; columnIndex < columnIndexes.length; columnIndex++) {
-                    int inputColumnIndex = columnIndexes[columnIndex];
+                for (int columnIndex = 0; columnIndex < inputColumnIndexes.length; columnIndex++) {
+                    int inputColumnIndex = inputColumnIndexes[columnIndex];
                     if (inputColumnIndex != -1) {
                         Column inputColumn = inputColumns[inputColumnIndex];
                         rowValues[columnIndex] = inputTable.getValue(rowIndex,
@@ -181,7 +195,6 @@ public class DiskSortedDataSetWriter {
         throws DataSetException {
         TableKey searchingTableKey = TableKey.fromQualifiedTableName(
             searchingTableMetaData.getTableName());
-        TableKey foundTableKey = searchingTableKey;
         ITableMetaData writingMetaData = this.metaDataMap.get(searchingTableKey);
         if (writingMetaData == null) {
             Map<TableKey, ITableMetaData> foundMetaDataMap = new LinkedHashMap<>();
@@ -193,43 +206,42 @@ public class DiskSortedDataSetWriter {
             }
             if (foundMetaDataMap.size() == 1) {
                 for (Map.Entry<TableKey, ITableMetaData> entry : foundMetaDataMap.entrySet()) {
-                    foundTableKey = entry.getKey();
-                    writingMetaData = entry.getValue();
+                    return getWritingTable(entry.getKey(), entry.getValue());
                 }
             }
             for (Map.Entry<TableKey, ITableMetaData> entry : foundMetaDataMap.entrySet()) {
                 if (equalsAllColumnNames(entry.getValue(), searchingTableMetaData)) {
-                    foundTableKey = entry.getKey();
-                    writingMetaData = entry.getValue();
-                    break;
+                    return getWritingTable(entry.getKey(), entry.getValue());
                 }
             }
             for (Map.Entry<TableKey, ITableMetaData> entry : foundMetaDataMap.entrySet()) {
                 if (includesAllColumnNames(entry.getValue(), searchingTableMetaData)) {
-                    foundTableKey = entry.getKey();
-                    writingMetaData = entry.getValue();
-                    break;
+                    return getWritingTable(entry.getKey(), entry.getValue());
                 }
             }
             throw new IllegalStateException(
                 "Multiple TableMetaData found: " + searchingTableMetaData.getTableName() + " -> "
                     + foundMetaDataMap.keySet());
+        } else {
+            return getWritingTable(searchingTableKey, writingMetaData);
         }
+    }
 
-        String tableName = writingMetaData.getTableName();
+    private WritingTable getWritingTable(TableKey tableKey, ITableMetaData tableMetaData) {
+        String tableName = tableMetaData.getTableName();
         WritingTable writingTable = this.writingTableMap.get(tableName);
         if (writingTable == null) {
             writingTable = new WritingTable();
-            writingTable.setTableKey(searchingTableKey);
-            writingTable.setTableMetaData(writingMetaData);
+            writingTable.setTableKey(tableKey);
+            writingTable.setTableMetaData(tableMetaData);
             writingTable.setFileCount(0);
             this.writingTableMap.put(tableName, writingTable);
             return writingTable;
         } else {
-            if (!writingTable.getTableKey().equals(foundTableKey)) {
+            if (!writingTable.getTableKey().equals(tableKey)) {
                 throw new IllegalStateException(
                     "Duplicated TableName: tableName=" + tableName + ", tableKeys=["
-                        + writingTable.getTableKey() + "," + foundTableKey + "]");
+                        + writingTable.getTableKey() + "," + tableKey + "]");
             }
             return writingTable;
         }
@@ -283,7 +295,7 @@ public class DiskSortedDataSetWriter {
     }
 
 
-    private int indexOf(ITableMetaData metaData, String columnName) throws DataSetException {
+    private int columIndexOf(ITableMetaData metaData, String columnName) throws DataSetException {
         for (int i = 0; i < metaData.getColumns().length; i++) {
             Column column = metaData.getColumns()[i];
             if (column.getColumnName().equalsIgnoreCase(columnName)) {
@@ -293,7 +305,7 @@ public class DiskSortedDataSetWriter {
         return -1;
     }
 
-    private void writeDbdefFile() throws DataSetException {
+    private void writeDbdefFile() {
         List<TableKey> tableKeys = getWritingTableKeys();
         DatabaseNode outDatabaseNode = DatabaseUtils.createCopy(this.databaseNode, tableKeys);
         File metaDataFile = new File(this.dir, DiskSortedDataSet.METADATA_FILE_NAME);
@@ -313,8 +325,8 @@ public class DiskSortedDataSetWriter {
         if (files != null) {
             tableFiles.addAll(Arrays.asList(files));
         }
-        RowMergingDiskSortedTable mergingTable = new RowMergingDiskSortedTable(
-            writingTable.getTableMetaData(), tableFiles);
+
+        ITable mergingTable = createMergingTable(writingTable, tableFiles);
 
         Column[] columns = writingTable.getTableMetaData().getColumns();
         int columnCount = columns.length;
@@ -341,6 +353,34 @@ public class DiskSortedDataSetWriter {
                 writeTableFile(tableDir, table, writingTable);
             }
         }
+
+        for (File file : tableFiles) {
+            if (!file.delete()) {
+                throw new IllegalStateException("Failed to delete file: " + file.getAbsolutePath());
+            }
+        }
+    }
+
+    private ITable createMergingTable(WritingTable writingTable, List<File> files)
+        throws DataSetException {
+        ITableMetaData tableMetaData = writingTable.getTableMetaData();
+        if (tableMetaData.getPrimaryKeys().length == 0) {
+            if (writingTable.getMergeMode() == null) {
+                return new RowMergingDiskSortedTable(tableMetaData, files);
+            } else {
+                switch (writingTable.getMergeMode()) {
+                    case DISTINCT:
+                        return new RowMergingDiskSortedTable(tableMetaData, files);
+                    case UNION_ALL:
+                        return new AllMergingDiskSortedTable(tableMetaData, files);
+                    default:
+                        throw new IllegalStateException(
+                            "Unexpected merge mode: " + writingTable.getMergeMode());
+                }
+            }
+        } else {
+            return new KeyMergingDiskSortedTable(tableMetaData, files);
+        }
     }
 
     private void writeTableFile(File tableDir, DefaultTable table, WritingTable writingTable)
@@ -352,16 +392,16 @@ public class DiskSortedDataSetWriter {
             fileCount);
         File file = new File(tableDir, fileName);
         DefaultDataSet dataSet = new DefaultDataSet();
-        dataSet.addTable(toSortedTable(table));
+        dataSet.addTable(table);
         DbUnitUtils.save(dataSet, file, DbUnitFileFormat.FLAT_XML);
     }
-
 
     @Data
     private static class WritingTable {
 
         private TableKey tableKey;
         private ITableMetaData tableMetaData;
+        private TableMergeMode mergeMode;
         private int tempFileCount;
         private int fileCount;
     }
