@@ -13,16 +13,6 @@ config set -h
 
 convert -h
 
-export -h
-
-export table -h
-
-export sql -h
-
-export empty -h
-
-import -h
-
 dbdef -h
 
 dbdef catalog -h
@@ -41,6 +31,16 @@ diff dbdef -h
 
 diff data -h
 
+export -h
+
+export table -h
+
+export sql -h
+
+export empty -h
+
+import -h
+
 sql -h
 
 sql query -h
@@ -48,5 +48,7 @@ sql query -h
 sql update -h
 
 sql count -h
+
+clear -h
 
 exit -h

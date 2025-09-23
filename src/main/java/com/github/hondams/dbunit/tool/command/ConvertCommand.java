@@ -24,17 +24,17 @@ public class ConvertCommand implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, split = ",", required = true)
     String[] input;
 
-    @Option(names = {"-f", "--format"})
+    @Option(names = {"-of", "--output-format"})
     DbUnitFileFormat format;
 
     @Option(names = {"-o", "--output"}, required = true)
     String output;
 
-    @Option(names = {"-m", "--output-mode"})
+    @Option(names = {"-om", "--output-mode"})
     String outputMode;
 
-    @Option(names = {"-l", "--limit"})
-    int limit = -1;
+    @Option(names = {"-os", "--output-split"})
+    int split = -1;
 
     @Override
     public Integer call() throws Exception {

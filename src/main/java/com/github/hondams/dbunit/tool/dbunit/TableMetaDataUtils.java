@@ -7,6 +7,7 @@ import com.github.hondams.dbunit.tool.model.SchemaNode;
 import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.model.TableNode;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,47 +24,53 @@ import org.dbunit.dataset.datatype.DataTypeException;
 @UtilityClass
 public class TableMetaDataUtils {
 
-    public List<ITableMetaData> createTableMetaDataList(DatabaseNode databaseNode) {
+    public Map<TableKey, ITableMetaData> createTableMetaDataMap(DatabaseNode databaseNode,
+        TableNamePattern tableNamePattern) {
         DbUnitDataTypeFactory dataTypeFactory = DbUnitDataTypeFactoryProvider.getDbUnitDataTypeFactory(
             databaseNode.getProductName());
-        List<ITableMetaData> tableMetaDataList = new ArrayList<>();
+        Map<TableKey, ITableMetaData> tableMetaDataMap = new LinkedHashMap<>();
         for (CatalogNode catalogNode : databaseNode.getCatalogs()) {
             for (SchemaNode schemaNode : catalogNode.getSchemas()) {
                 for (TableNode tableNode : schemaNode.getTables()) {
                     TableKey tableKey = new TableKey(catalogNode.getCatalogName(),
                         schemaNode.getSchemaName(), tableNode.getTableName());
-                    tableMetaDataList.add(
-                        createTableMetaData(dataTypeFactory, tableKey, tableNode));
+                    String tableName = tableNamePattern.getTableName(tableKey);
+                    // ここでは、tableNameの重複チェックはしない。
+                    tableMetaDataMap.put(tableKey,
+                        createTableMetaData(dataTypeFactory, tableName, tableNode));
                 }
             }
         }
-        return tableMetaDataList;
+        return tableMetaDataMap;
     }
 
     private ITableMetaData createTableMetaData(DbUnitDataTypeFactory dataTypeFactory,
-        TableKey tableKey, TableNode tableNode) {
+        String tableName, TableNode tableNode) {
         List<Column> columns = new ArrayList<>();
         Map<Integer, Column> primaryKeyMap = new TreeMap<>();
         for (ColumnNode columnNode : tableNode.getColumns()) {
-            Column column = createColumn(dataTypeFactory, tableKey, columnNode);
+            Column column = createColumn(dataTypeFactory, tableNode.getTableName(), columnNode);
             columns.add(column);
             if (columnNode.getKeyIndex() != null) {
                 primaryKeyMap.put(columnNode.getKeyIndex(), column);
             }
         }
         List<Column> primaryKeys = new ArrayList<>(primaryKeyMap.values());
-        return new DefaultTableMetaData(tableKey.getTableName(),//
+        // see: org.dbunit.operation.AbstractOperation#getOperationMetaData
+        // DatabaseDataset#createDataSetで、渡しテーブル名
+        return new DefaultTableMetaData(tableName,//
             columns.toArray(new Column[0]),//
             primaryKeys.toArray(new Column[0]));
     }
 
-    private Column createColumn(DbUnitDataTypeFactory dataTypeFactory, TableKey tableKey,
+    private Column createColumn(DbUnitDataTypeFactory dataTypeFactory, String tableName,
         ColumnNode columnNode) {
 
         try {
             String columnName = columnNode.getColumnName();
+            // see: org.dbunit.util.SQLHelper#createColumn
             DataType dataType = dataTypeFactory.createDataType(columnNode.getSqlType(),
-                columnNode.getSqlTypeName(), tableKey.getTableName(), columnName);
+                columnNode.getSqlTypeName(), tableName, columnName);
             String sqlTypeName = columnNode.getSqlTypeName();
             Nullable nullable = toNullable(columnNode.getNullable());
             String defaultValue = columnNode.getDefaultValue();

@@ -1,0 +1,690 @@
+> batch -f=command/testAllCommand.txt
+Executing command: [batch, -f=command/testAllCommand.txt]
+Start batch mode. file=C:\projects\github\hondams\dbunit-tools\command\testAllCommand.txt
+> # <Usage>
+> # batch -f=command/testAllCommand.txt
+>
+> sql update -f=command/test/sql/schema.sql
+Executing command: [sql, update, -f=command/test/sql/schema.sql]
+Executing SQL: CREATE TABLE dbunit_tools_users (id INT PRIMARY KEY, name VARCHAR (100), email VARCHAR (100))
+Result: 0
+
+Executing SQL: CREATE TABLE dbunit_tools_products (id INT PRIMARY KEY, name VARCHAR (100), price DECIMAL (10, 2))
+Result: 0
+
+>
+> sql update -f=command/test/sql/data.sql
+Executing command: [sql, update, -f=command/test/sql/data.sql]
+Executing SQL: INSERT INTO dbunit_tools_users (id, name, email) VALUES (1, '山田太郎', 'taro@example.com')
+Result: 1
+
+Executing SQL: INSERT INTO dbunit_tools_users (id, name, email) VALUES (2, '鈴木花子', 'hanako@example.com')
+Result: 1
+
+Executing SQL: INSERT INTO dbunit_tools_products (id, name, price) VALUES (1, 'りんご', 120.50)
+Result: 1
+
+Executing SQL: INSERT INTO dbunit_tools_products (id, name, price) VALUES (2, 'みかん?', 80.00)
+Result: 1
+
+>
+> sql count -t=DBUNIT_TOOLS_%
+Executing command: [sql, count, -t=DBUNIT_TOOLS_%]
+Table                               | Count
+------------------------------------+------
+TESTDB.PUBLIC.DBUNIT_TOOLS_PRODUCTS |     2
+TESTDB.PUBLIC.DBUNIT_TOOLS_USERS    |     2
+>
+> sql query -f=command/test/sql/query.sql
+Executing command: [sql, query, -f=command/test/sql/query.sql]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+>
+>
+> batch -f=command/tesDbdef.txt
+Executing command: [batch, -f=command/tesDbdef.txt]
+Start batch mode. file=C:\projects\github\hondams\dbunit-tools\command\tesDbdef.txt
+> # <Usage>
+> # batch -f=command/tesDbdef.txt
+>
+> dbdef catalog
+Executing command: [dbdef, catalog]
+Catalog
+-------
+TESTDB
+>
+> dbdef schema
+Executing command: [dbdef, schema]
+Catalog | Schema
+--------+-------------------
+TESTDB  | INFORMATION_SCHEMA
+TESTDB  | PUBLIC
+>
+> dbdef table -t=DBUNIT_TOOLS_%
+Executing command: [dbdef, table, -t=DBUNIT_TOOLS_%]
+Catalog | Schema | Table                 | TableType
+--------+--------+-----------------------+-----------
+TESTDB  | PUBLIC | DBUNIT_TOOLS_PRODUCTS | BASE TABLE
+TESTDB  | PUBLIC | DBUNIT_TOOLS_USERS    | BASE TABLE
+>
+> dbdef column -t=DBUNIT_TOOLS_%
+Executing command: [dbdef, column, -t=DBUNIT_TOOLS_%]
+Table: TESTDB.PUBLIC.DBUNIT_TOOLS_PRODUCTS
+ColumnName | SqlType | SqlTypeName       | DataTypeName | ColumnSize | DecimalDigits | Nullable | DefaultValue | KeyIndex
+-----------+---------+-------------------+--------------+------------+---------------+----------+--------------+---------
+ID         |       4 | INTEGER           | INTEGER      |         32 |             0 | NO       |              |        1
+NAME       |      12 | CHARACTER VARYING | VARCHAR      |        100 |             0 | YES      |              |        
+PRICE      |       3 | DECIMAL           | DECIMAL      |         10 |             2 | YES      |              |        
+
+Table: TESTDB.PUBLIC.DBUNIT_TOOLS_USERS
+ColumnName | SqlType | SqlTypeName       | DataTypeName | ColumnSize | DecimalDigits | Nullable | DefaultValue | KeyIndex
+-----------+---------+-------------------+--------------+------------+---------------+----------+--------------+---------
+ID         |       4 | INTEGER           | INTEGER      |         32 |             0 | NO       |              |        1
+NAME       |      12 | CHARACTER VARYING | VARCHAR      |        100 |             0 | YES      |              |        
+EMAIL      |      12 | CHARACTER VARYING | VARCHAR      |        100 |             0 | YES      |              |        
+
+>
+>
+> batch -f=command/testExportAndImport.txt
+Executing command: [batch, -f=command/testExportAndImport.txt]
+Start batch mode. file=C:\projects\github\hondams\dbunit-tools\command\testExportAndImport.txt
+> # <Usage>
+> # batch -f=command/testExportAndImport.txt
+>
+> export empty -t=DBUNIT_TOOLS_% -e=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_empty.xml
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -e=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_empty.xml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty.xml
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.xml
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all.xml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.xml
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.xls
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all.xls]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.xls
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.xlsx
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all.xlsx]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.xlsx
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_xml.xml -of=XML
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all_xml.xml, -of=XML]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all_xml.xml
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_flatxml.xml -of=FLAT_XML
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all_flatxml.xml, -of=FLAT_XML]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all_flatxml.xml
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.yaml
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all.yaml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.yaml
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.yml
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all.yml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.yml
+>
+> export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_csv -of=CSV
+Executing command: [export, empty, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_empty_all_csv, -of=CSV]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all_csv
+>
+> export table -t=DBUNIT_TOOLS_% -e=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_table.xml
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -e=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_table.xml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table.xml
+>
+> export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.xml
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_table_all.xml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.xml
+>
+> export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.xls
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_table_all.xls]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.xls
+>
+> export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.xlsx
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_table_all.xlsx]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.xlsx
+>
+> export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all_xml.xml -of=XML
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_table_all_xml.xml, -of=XML]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all_xml.xml
+>
+> export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.yaml
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_table_all.yaml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.yaml
+>
+> export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.yml
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_table_all.yml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.yml
+>
+> export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all_csv -of=CSV
+Executing command: [export, table, -t=DBUNIT_TOOLS_%, -o=command/test/data/export_table_all_csv, -of=CSV]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all_csv
+>
+> export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xml
+Executing command: [export, sql, SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1, -s=PUBLIC, -ot=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_sql.xml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.xml
+>
+> export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xls
+Executing command: [export, sql, SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1, -s=PUBLIC, -ot=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_sql.xls]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.xls
+>
+> export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xlsx
+Executing command: [export, sql, SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1, -s=PUBLIC, -ot=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_sql.xlsx]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.xlsx
+>
+> export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql_xml.xml -of=XML
+Executing command: [export, sql, SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1, -s=PUBLIC, -ot=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_sql_xml.xml, -of=XML]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql_xml.xml
+>
+> export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.yaml
+Executing command: [export, sql, SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1, -s=PUBLIC, -ot=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_sql.yaml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.yaml
+>
+> export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.yml
+Executing command: [export, sql, SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1, -s=PUBLIC, -ot=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_sql.yml]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.yml
+>
+> export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql_csv -of=CSV
+Executing command: [export, sql, SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1, -s=PUBLIC, -ot=DBUNIT_TOOLS_PRODUCTS, -o=command/test/data/export_sql_csv, -of=CSV]
+Exported to C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql_csv
+>
+>
+> import -s=PUBLIC -i=command/test/data/export_empty.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_sql.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_sql.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+-------
+ 1 | りんご  | 120.50
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table_all.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table_all.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_sql.xls
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_sql.xls]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.xls
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+-------
+ 1 | りんご  | 120.50
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all.xls
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all.xls]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.xls
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table_all.xls
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table_all.xls]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.xls
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_sql.xlsx
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_sql.xlsx]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.xlsx
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+-------
+ 1 | りんご  | 120.50
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all.xlsx
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all.xlsx]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.xlsx
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table_all.xlsx
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table_all.xlsx]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.xlsx
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎? | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_sql_xml.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_sql_xml.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql_xml.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎? | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+-------
+ 1 | りんご  | 120.50
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all_xml.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all_xml.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all_xml.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table_all_xml.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table_all_xml.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all_xml.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_sql.yaml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_sql.yaml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.yaml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+-------
+ 1 | りんご  | 120.50
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all_flatxml.xml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all_flatxml.xml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all_flatxml.xml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table_all.yaml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table_all.yaml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.yaml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME                 | EMAIL
+---+----------------------+-------------------
+ 1 | 5bGx55Sw5aSq6YOOAA== | taro@example.com
+ 2 | 鈴木花子                 | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all.yaml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all.yaml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.yaml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table_all.yml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table_all.yml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all.yml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME                 | EMAIL
+---+----------------------+-------------------
+ 1 | 5bGx55Sw5aSq6YOOAA== | taro@example.com
+ 2 | 鈴木花子                 | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_sql.yml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_sql.yml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql.yml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME                 | EMAIL
+---+----------------------+-------------------
+ 1 | 5bGx55Sw5aSq6YOOAA== | taro@example.com
+ 2 | 鈴木花子                 | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+-------
+ 1 | りんご  | 120.50
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all.yml
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all.yml]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all.yml
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+> import -s=PUBLIC -i=command/test/data/export_table_all_csv
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_table_all_csv]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_table_all_csv
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME  | PRICE
+---+-------+-------
+ 1 | りんご   | 120.50
+ 2 | みかん? |  80.00
+
+>
+> import -s=PUBLIC -i=command/test/data/export_sql_csv
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_sql_csv]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_sql_csv
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME  | EMAIL
+---+-------+-------------------
+ 1 | 山田太郎 | taro@example.com
+ 2 | 鈴木花子  | hanako@example.com
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+-------
+ 1 | りんご  | 120.50
+
+>
+> import -s=PUBLIC -i=command/test/data/export_empty_all_csv
+Executing command: [import, -s=PUBLIC, -i=command/test/data/export_empty_all_csv]
+Imported from C:\projects\github\hondams\dbunit-tools\command\test\data\export_empty_all_csv
+>
+> sql query "SELECT * FROM dbunit_tools_users"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_users]
+Executing SQL: SELECT * FROM dbunit_tools_users
+ID | NAME | EMAIL
+---+------+------
+
+> sql query "SELECT * FROM dbunit_tools_products"
+Executing command: [sql, query, SELECT * FROM dbunit_tools_products]
+Executing SQL: SELECT * FROM dbunit_tools_products
+ID | NAME | PRICE
+---+------+------
+
+>
+>
+> sql update "DROP TABLE dbunit_tools_users"
+Executing command: [sql, update, DROP TABLE dbunit_tools_users]
+Executing SQL: DROP TABLE dbunit_tools_users
+Result: 0
+
+>
+> sql update "DROP TABLE dbunit_tools_products"
+Executing command: [sql, update, DROP TABLE dbunit_tools_products]
+Executing SQL: DROP TABLE dbunit_tools_products
+Result: 0
+
+>
+> sql count -t=DBUNIT_TOOLS_%
+Executing command: [sql, count, -t=DBUNIT_TOOLS_%]
+Table | Count
+------+------
+>

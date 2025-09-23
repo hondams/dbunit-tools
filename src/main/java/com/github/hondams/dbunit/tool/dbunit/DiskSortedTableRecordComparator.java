@@ -7,7 +7,9 @@ public class DiskSortedTableRecordComparator implements Comparator<List<Comparab
 
     public static final Comparator<List<Comparable<Object>>> INSTANCE = new DiskSortedTableRecordComparator();
 
-    private static final Comparator<Comparable<Object>> VALUE_COMPARATOR = Comparator.nullsLast(
+    // org.dbunit.dataset.SortedTable.AbstractRowComparator.compare(java.lang.Object, java.lang.Object)で、
+    // nullを最小値としているので、それに合わせる。
+    private static final Comparator<Comparable<Object>> VALUE_COMPARATOR = Comparator.nullsFirst(
         Comparator.naturalOrder());
 
     @Override

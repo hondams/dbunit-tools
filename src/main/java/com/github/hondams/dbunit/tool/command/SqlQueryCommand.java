@@ -3,6 +3,7 @@ package com.github.hondams.dbunit.tool.command;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import com.github.hondams.dbunit.tool.util.PrintLineUtils;
+import com.github.hondams.dbunit.tool.util.SqlUtils;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -68,9 +68,7 @@ public class SqlQueryCommand implements Callable<Integer> {
         try (Connection connection = this.dataSource.getConnection()) {
 
             try (Statement statement = connection.createStatement()) {
-                for (net.sf.jsqlparser.statement.Statement sqlStatement ://
-                    CCJSqlParserUtil.parseStatements(querySql)) {
-                    String executingSql = sqlStatement.toString();
+                for (String executingSql : SqlUtils.splitSqls(querySql)) {
                     executeSql(statement, executingSql);
                 }
             }

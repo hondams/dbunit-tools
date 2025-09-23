@@ -42,9 +42,6 @@ public class TableKey {
         List<TableKey> tableKeys = new ArrayList<>();
         for (String qualifiedTableName : qualifiedTableNames) {
             TableKey tableKey = fromQualifiedTableName(qualifiedTableName);
-            if (tableKey == null) {
-                throw new IllegalStateException("Invalid table name: " + qualifiedTableName);
-            }
             tableKeys.add(tableKey);
         }
         return tableKeys;
@@ -65,7 +62,7 @@ public class TableKey {
             schemaName = parts[1];
             tableName = parts[2];
         } else {
-            return null;
+            throw new IllegalStateException("Invalid table name: " + qualifiedTableName);
         }
         return new TableKey(catalogName, schemaName, tableName);
     }

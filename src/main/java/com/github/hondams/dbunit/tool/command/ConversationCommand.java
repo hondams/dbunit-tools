@@ -14,7 +14,7 @@ import picocli.CommandLine.IFactory;
     description = "",//
     subcommands = {BatchCommand.class, ConfigCommand.class, ConvertCommand.class,
         DbDefCommand.class, DiffCommand.class, ExportCommand.class, ImportCommand.class,
-        SqlCommand.class, ExitCommand.class})
+        SqlCommand.class, ClearCommand.class, ExitCommand.class})
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j

@@ -3,6 +3,7 @@ package com.github.hondams.dbunit.tool.command;
 import com.github.hondams.dbunit.tool.dbunit.DatabaseConnectionFactory;
 import com.github.hondams.dbunit.tool.dbunit.DbUnitFileFormat;
 import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
+import com.github.hondams.dbunit.tool.dbunit.TableNamePattern;
 import com.github.hondams.dbunit.tool.model.CatalogNode;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
 import com.github.hondams.dbunit.tool.model.SchemaNode;
@@ -44,20 +45,26 @@ public class ExportTableCommand implements Callable<Integer> {
 
     @Option(names = {"-e", "--exclude"}, split = ",",//
         description = "Table names to exclude. "//
-            + "Specify only the table name. "//
+            + "Specify in the same format as Output Table name pattern. "//
             + "Exclusion is applied only when the table name matches case-insensitively.")
-    String[] exclude;
+    String[] excludeTableName;
 
-    @Option(names = {"-f", "--format"},//
-        description = "File format. " //
+    @Option(names = {"-otp", "--output-table-pattern"}, //
+        description = "Output Table name pattern. "
+            + "The available values are CATALOG_SCHEMA_TABLE, SCHEMA_TABLE, and TABLE. "
+            + "If not specified,  TABLE is used.")
+    TableNamePattern outputTableNamePattern = TableNamePattern.TABLE;
+
+    @Option(names = {"-of", "--output-format"},//
+        description = "Output File format. " //
             + "When outputting as XML or CSV, this option must be specified. "//
             + "If not specified, the format is inferred from the file extension.")
-    DbUnitFileFormat format;
+    DbUnitFileFormat outputFormat;
 
     @Option(names = {"-o", "--output"}, required = true,//
         description = "Output dbunit file path. "//
             + "If the format is CSV, specify a directory.")
-    String output;
+    String outputFile;
 
     @Autowired
     DataSource dataSource;
@@ -65,7 +72,7 @@ public class ExportTableCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        File outputFile = new File(this.output);
+        File outputFile = new File(this.outputFile);
         File outputDirectory = outputFile.getParentFile();
         if (outputDirectory != null//
             && (!outputDirectory.isDirectory() || !outputDirectory.exists())) {
@@ -89,7 +96,7 @@ public class ExportTableCommand implements Callable<Integer> {
 
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                 this.scheme);
-            if (DbUnitUtils.supportsStreamWrite(outputFile, this.format)) {
+            if (DbUnitUtils.supportsStreamWrite(outputFile, this.outputFormat)) {
                 DatabaseConfig databaseConfig = databaseConnection.getConfig();
                 databaseConfig.setProperty(DatabaseConfig.PROPERTY_RESULTSET_TABLE_FACTORY,
                     new ForwardOnlyResultSetTableFactory());
@@ -101,17 +108,19 @@ public class ExportTableCommand implements Callable<Integer> {
                     if (this.scheme == null//
                         || this.scheme.equalsIgnoreCase(schemaNode.getSchemaName())) {
                         for (TableNode tableNode : schemaNode.getTables()) {
-                            if (!isExcluded(tableNode.getTableName())) {
-                                inputDataSet.addTable(tableNode.getTableName(),
-                                    SqlUtils.getAll(tableNode.getTableName(),
-                                        tableNode.getColumns()));
+                            TableKey tableKey = new TableKey(catalogNode.getCatalogName(),
+                                schemaNode.getSchemaName(), tableNode.getTableName());
+                            String tableName = this.outputTableNamePattern.getTableName(tableKey);
+                            if (!isExcluded(tableName)) {
+                                inputDataSet.addTable(tableName,
+                                    SqlUtils.getAll(tableName, tableNode.getColumns()));
                             }
                         }
                     }
                 }
             }
 
-            DbUnitUtils.save(inputDataSet, outputFile, this.format);
+            DbUnitUtils.save(inputDataSet, outputFile, this.outputFormat);
             ConsolePrinter.println(log, "Exported to " + outputFile.getAbsolutePath());
             return 0;
         } catch (Exception e) {
@@ -121,8 +130,8 @@ public class ExportTableCommand implements Callable<Integer> {
     }
 
     private boolean isExcluded(String tableName) {
-        if (this.exclude != null) {
-            for (String ex : this.exclude) {
+        if (this.excludeTableName != null) {
+            for (String ex : this.excludeTableName) {
                 if (ex.equalsIgnoreCase(tableName)) {
                     return true;
                 }

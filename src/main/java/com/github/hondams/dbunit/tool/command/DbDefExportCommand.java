@@ -1,6 +1,5 @@
 package com.github.hondams.dbunit.tool.command;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
 import com.github.hondams.dbunit.tool.model.TableKey;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
@@ -30,18 +29,15 @@ public class DbDefExportCommand implements Callable<Integer> {
 
     @Option(names = {"-o", "--output"}, required = true,//
         description = "Output file path")
-    String output;
+    String outputFile;
 
     @Autowired
     DataSource dataSource;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
     @Override
     public Integer call() throws Exception {
 
-        File outputFile = new File(this.output);
+        File outputFile = new File(this.outputFile);
         File outputDirectory = outputFile.getParentFile();
         if (outputDirectory != null//
             && (!outputDirectory.isDirectory() || !outputDirectory.exists())) {
@@ -58,7 +54,7 @@ public class DbDefExportCommand implements Callable<Integer> {
             List<TableKey> tableKeys = TableKey.fromQualifiedTableNames(List.of(this.table));
             DatabaseNode databaseNode = DatabaseUtils.getDatabaseNode(connection, tableKeys);
 
-            this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, databaseNode);
+            DatabaseUtils.saveDatabaseNode(outputFile, databaseNode);
             ConsolePrinter.println(log, "Exported to " + outputFile.getAbsolutePath());
 
             return 0;

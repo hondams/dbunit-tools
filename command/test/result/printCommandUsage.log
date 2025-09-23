@@ -1,13 +1,11 @@
-C:\projects\github\hondams\dbunit-tools>java -Dfile.encoding=UTF-8 -jar C:\projects\github\hondams\dbunit-tools\target\dbunit-tools-0.0.1-SNAPSHOT.jar
-Start conversation mode.
- Use '-h' option to see usage.
- Input 'exit' to exit.
 > batch -f=command\printCommandUsage.txt
+Executing command: [batch, -f=command\\printCommandUsage.txt]
 Start batch mode. file=C:\projects\github\hondams\dbunit-tools\command\printCommandUsage.txt
 > # <Usage>
 > # batch -f=command\printCommandUsage.txt
 >
 > -h
+Executing command: [-h]
 Unknown option: '-h'
 Usage:  [COMMAND]
 
@@ -15,19 +13,23 @@ Commands:
   batch    Execute commands from a file
   config   Configure dbunit-tools settings
   convert  Convert or merge data file format
+  dbdef    Print database definition information
+  diff     Compare two files
   export   Export data from database to file
   import   Import data from file to database
-  dbdef    Print database definition information
   sql      Execute SQL command
+  clear    Clear console
   exit     Exit dbunit-tools
 >
 > batch -h
+Executing command: [batch, -h]
 Missing required option: '--file=<file>'
 Usage:  batch -f=<file>
 Execute commands from a file
   -f, --file=<file>   File containing commands to execute
 >
 > config -h
+Executing command: [config, -h]
 Unknown option: '-h'
 Usage:  config [COMMAND]
 Configure dbunit-tools settings
@@ -36,11 +38,13 @@ Commands:
   set   Set configuration
 >
 > config list -h
+Executing command: [config, list, -h]
 Unknown option: '-h'
 Usage:  config list
 List configurations
 >
 > config set -h
+Executing command: [config, set, -h]
 Missing required parameters: '<key>', '<value>'
 Usage:  config set <key> <value>
 Set configuration
@@ -48,95 +52,23 @@ Set configuration
       <value>   value
 >
 > convert -h
+Executing command: [convert, -h]
 Missing required options: '--input=<input>', '--output=<output>'
-Usage:  convert [-f=<format>] [-l=<limit>] [-m=<outputMode>] -o=<output>
+Usage:  convert -o=<output> [-of=<format>] [-om=<outputMode>] [-os=<split>]
                 -i=<input>[,<input>...] [-i=<input>[,<input>...]]...
 Convert or merge data file format
-  -f, --format=<format>
   -i, --input=<input>[,<input>...]
 
-  -l, --limit=<limit>
-  -m, --output-mode=<outputMode>
-
   -o, --output=<output>
->
-> export -h
-Unknown option: '-h'
-Usage:  export [COMMAND]
-Export data from database to file
-Commands:
-  table  Export table data from database to file
-  sql    Export sql result from database to file
-  empty  Export table data from database to file
->
-> export table -h
-Missing required options: '--table=<table>', '--output=<output>'
-Usage:  export table [-f=<format>] -o=<output> [-s=<scheme>] [-e=<exclude>[,
-                     <exclude>...]]... -t=<table>[,<table>...] [-t=<table>[,
-                     <table>...]]...
-Export table data from database to file
-  -e, --exclude=<exclude>[,<exclude>...]
-                          Table names to exclude. Specify only the table name.
-                            Exclusion is applied only when the table name
-                            matches case-insensitively.
-  -f, --format=<format>   File format. When outputting as XML or CSV, this
-                            option must be specified. If not specified, the
-                            format is inferred from the file extension.
-  -o, --output=<output>   Output dbunit file path. If the format is CSV,
-                            specify a directory.
-  -s, --scheme=<scheme>   Schema name. If not specified, the default schema is
-                            used.
-  -t, --table=<table>[,<table>...]
-                          Table name. Specify only the table name. Pattern
-                            match using % is available.
->
-> export sql -h
-Missing required parameter: '<sql>'
-Usage:  export sql [-f=<format>] -o=<output> [-s=<scheme>] -t=<table> <sql>
-Export sql result from database to file
-      <sql>               SQL query to export
-  -f, --format=<format>   File format. When outputting as XML or CSV, this
-                            option must be specified. If not specified, the
-                            format is inferred from the file extension.
-  -o, --output=<output>   Output dbunit file path. If the format is CSV,
-                            specify a directory.
-  -s, --scheme=<scheme>   Schema name. If not specified, the default schema is
-                            used.
-  -t, --table=<table>     Table name. Specify only the table name.
->
-> export empty -h
-Missing required options: '--table=<table>', '--output=<output>'
-Usage:  export empty [-f=<format>] -o=<output> [-s=<scheme>] [-e=<exclude>[,
-                     <exclude>...]]... -t=<table>[,<table>...] [-t=<table>[,
-                     <table>...]]...
-Export table data from database to file
-  -e, --exclude=<exclude>[,<exclude>...]
-                          Table names to exclude. Specify only the table name.
-                            Exclusion is applied only when the table name
-                            matches case-insensitively.
-  -f, --format=<format>   File format. When outputting as XML or CSV, this
-                            option must be specified. If not specified, the
-                            format is inferred from the file extension.
-  -o, --output=<output>   Output dbunit file path. If the format is CSV,
-                            specify a directory.
-  -s, --scheme=<scheme>   Schema name. If not specified, the default schema is
-                            used.
-  -t, --table=<table>[,<table>...]
-                          Table name. Specify only the table name. Pattern
-                            match using % is available.
->
-> import -h
-Missing required option: '--input=<input>'
-Usage:  import [-c=<chunk>] -i=<input> [-s=<scheme>]
-Import data from file to database
-  -c, --chunk=<chunk>     Number of rows per batch when inserting. If not
-                            specified or less than 1, all rows are inserted at
-                            once.
-  -i, --input=<input>     Input dbunit file path
-  -s, --scheme=<scheme>   Schema name. If not specified, the default schema is
-                            used.
+      -of, --output-format=<format>
+
+      -om, --output-mode=<outputMode>
+
+      -os, --output-split=<split>
+
 >
 > dbdef -h
+Executing command: [dbdef, -h]
 Unknown option: '-h'
 Usage:  dbdef [COMMAND]
 Print database definition information
@@ -146,19 +78,21 @@ Commands:
   table    Print database table information
   column   Print database column information
   export   Export data from database to file
-  diff     Compare two database definition files
 >
 > dbdef catalog -h
+Executing command: [dbdef, catalog, -h]
 Unknown option: '-h'
 Usage:  dbdef catalog
 Print database catalog information
 >
 > dbdef schema -h
+Executing command: [dbdef, schema, -h]
 Unknown option: '-h'
 Usage:  dbdef schema
 Print database schema information
 >
 > dbdef table -h
+Executing command: [dbdef, table, -h]
 Unknown option: '-h'
 Usage:  dbdef table [-t=<table>[,<table>...]]...
 Print database table information
@@ -167,6 +101,7 @@ Print database table information
            is available.
 >
 > dbdef column -h
+Executing command: [dbdef, column, -h]
 Missing required option: '--table=<table>'
 Usage:  dbdef column -t=<table>[,<table>...] [-t=<table>[,<table>...]]...
 Print database column information
@@ -175,25 +110,152 @@ Print database column information
            is available.
 >
 > dbdef export -h
-Missing required options: '--table=<table>', '--output=<output>'
-Usage:  dbdef export -o=<output> -t=<table>[,<table>...] [-t=<table>[,
+Executing command: [dbdef, export, -h]
+Missing required options: '--table=<table>', '--output=<outputFile>'
+Usage:  dbdef export -o=<outputFile> -t=<table>[,<table>...] [-t=<table>[,
                      <table>...]]...
 Export data from database to file
-  -o, --output=<output>   Output file path
+  -o, --output=<outputFile>
+         Output file path
   -t, --table=<table>[,<table>...]
-                          Table name. Specify as [catalog.]schema.table.
-                            Pattern match using % is available.
+         Table name. Specify as [catalog.]schema.table. Pattern match using %
+           is available.
 >
-> dbdef diff -h
+> diff -h
+Executing command: [diff, -h]
+Unknown option: '-h'
+Usage:  diff [COMMAND]
+Compare two files
+Commands:
+  dbdef  Compare two database definition files
+  data   Compare two database definition files
+>
+> diff dbdef -h
+Executing command: [diff, dbdef, -h]
 Missing required options: '--file1=<file1>', '--file2=<file2>'
-Usage:  dbdef diff -f1=<file1> -f2=<file2>
+Usage:  diff dbdef -f1=<file1> -f2=<file2>
 Compare two database definition files
       -f1, --file1=<file1>   Database definition file 1. Specify a file
-                               exported by dbdef export.
+                               exported by dbdef export command.
       -f2, --file2=<file2>   Database definition file 2. Specify a file
-                               exported by dbdef export.
+                               exported by dbdef export command.
+>
+> diff data -h
+Executing command: [diff, data, -h]
+Missing required options: '--dbdef-file=<dbdefFile>', '--file1=<file1>', '--file2=<file2>'
+Usage:  diff data -d=<dbdefFile> -f1=<file1> -f2=<file2>
+Compare two database definition files
+  -d, --dbdef-file=<dbdefFile>
+                             Database definition file 1. Specify a file
+                               exported by dbdef export command.
+      -f1, --file1=<file1>   DbUnit file 1. Specify a file exported by export
+                               command.
+      -f2, --file2=<file2>   DbUnit file 2. Specify a file exported by export
+                               command.
+>
+> export -h
+Executing command: [export, -h]
+Unknown option: '-h'
+Usage:  export [COMMAND]
+Export data from database to file
+Commands:
+  table  Export table data from database to file
+  sql    Export sql result from database to file
+  empty  Export table data from database to file
+>
+> export table -h
+Executing command: [export, table, -h]
+Missing required options: '--table=<table>', '--output-table-pattern=<outputTableNamePattern>', '--output=<outputFile>'
+Usage:  export table -o=<outputFile> [-of=<outputFormat>]
+                     -otp=<outputTableNamePattern> [-s=<scheme>]
+                     [-e=<excludeTableName>[,<excludeTableName>...]]...
+                     -t=<table>[,<table>...] [-t=<table>[,<table>...]]...
+Export table data from database to file
+  -e, --exclude=<excludeTableName>[,<excludeTableName>...]
+                          Table names to exclude. Specify in the same format as
+                            Output Table name pattern. Exclusion is applied
+                            only when the table name matches case-insensitively.
+  -o, --output=<outputFile>
+                          Output dbunit file path. If the format is CSV,
+                            specify a directory.
+      -of, --output-format=<outputFormat>
+                          Output File format. When outputting as XML or CSV,
+                            this option must be specified. If not specified,
+                            the format is inferred from the file extension.
+      -otp, --output-table-pattern=<outputTableNamePattern>
+                          Output Table name pattern. The available values are
+                            CATALOG_SCHEMA_TABLE, SCHEMA_TABLE, and TABLE. If
+                            not specified,  TABLE is used.
+  -s, --scheme=<scheme>   Schema name. If not specified, the default schema is
+                            used.
+  -t, --table=<table>[,<table>...]
+                          Table name. Specify only the table name. Pattern
+                            match using % is available.
+>
+> export sql -h
+Executing command: [export, sql, -h]
+Missing required parameter: '<sql>'
+Usage:  export sql -o=<outputFile> [-of=<outputFormat>] -ot=<outputTableName>
+                   [-s=<scheme>] <sql>
+Export sql result from database to file
+      <sql>               SQL query to export
+  -o, --output=<outputFile>
+                          Output dbunit file path. If the format is CSV,
+                            specify a directory.
+      -of, --output-format=<outputFormat>
+                          Output File format. When outputting as XML or CSV,
+                            this option must be specified. If not specified,
+                            the format is inferred from the file extension.
+      -ot, --output-table=<outputTableName>
+                          Output Table name. Specify only the table name.
+  -s, --scheme=<scheme>   Schema name. If not specified, the default schema is
+                            used.
+>
+> export empty -h
+Executing command: [export, empty, -h]
+Missing required options: '--table=<table>', '--output-table-pattern=<outputTableNamePattern>', '--output=<outputFile>'
+Usage:  export empty -o=<outputFile> [-of=<outputFormat>]
+                     -otp=<outputTableNamePattern> [-s=<scheme>]
+                     [-e=<excludeTableName>[,<excludeTableName>...]]...
+                     -t=<table>[,<table>...] [-t=<table>[,<table>...]]...
+Export table data from database to file
+  -e, --exclude=<excludeTableName>[,<excludeTableName>...]
+                          Table names to exclude. Specify in the same format as
+                            Output Table name pattern. Exclusion is applied
+                            only when the table name matches case-insensitively.
+  -o, --output=<outputFile>
+                          Output dbunit file path. If the format is CSV,
+                            specify a directory.
+      -of, --output-format=<outputFormat>
+                          Output File format. When outputting as XML or CSV,
+                            this option must be specified. If not specified,
+                            the format is inferred from the file extension.
+      -otp, --output-table-pattern=<outputTableNamePattern>
+                          Output Table name pattern. The available values are
+                            CATALOG_SCHEMA_TABLE, SCHEMA_TABLE, and TABLE. If
+                            not specified,  TABLE is used.
+  -s, --scheme=<scheme>   Schema name. If not specified, the default schema is
+                            used.
+  -t, --table=<table>[,<table>...]
+                          Table name. Specify only the table name. Pattern
+                            match using % is available.
+>
+> import -h
+Executing command: [import, -h]
+Missing required option: '--input=<inputFile>'
+Usage:  import [-d] [-c=<chunk>] -i=<inputFile> [-s=<scheme>]
+Import data from file to database
+  -c, --chunk=<chunk>       Number of rows per batch when inserting. If not
+                              specified or less than 1, all rows are inserted
+                              at once.
+  -d, --delete              If specified, existing data is deleted before
+                              inserting.
+  -i, --input=<inputFile>   Input dbunit file path
+  -s, --scheme=<scheme>     Schema name. If not specified, the default schema
+                              is used.
 >
 > sql -h
+Executing command: [sql, -h]
 Unknown option: '-h'
 Usage:  sql [COMMAND]
 Execute SQL command
@@ -203,6 +265,7 @@ Commands:
   count   Count rows in specified tables
 >
 > sql query -h
+Executing command: [sql, query, -h]
 Unknown option: '-h'
 Usage:  sql query [-f=<file>] [<sql>]
 Execute SQL query command
@@ -210,6 +273,7 @@ Execute SQL query command
   -f, --file=<file>   File containing sql to execute
 >
 > sql update -h
+Executing command: [sql, update, -h]
 Unknown option: '-h'
 Usage:  sql update [-f=<file>] [<sql>]
 Execute SQL update command
@@ -217,6 +281,7 @@ Execute SQL update command
   -f, --file=<file>   File containing sql to execute
 >
 > sql count -h
+Executing command: [sql, count, -h]
 Unknown option: '-h'
 Usage:  sql count [-t=<table>[,<table>...]]...
 Count rows in specified tables
@@ -224,7 +289,14 @@ Count rows in specified tables
          Table name. Specify as [catalog.]schema.table. Pattern match using %
            is available.
 >
+> clear -h
+Executing command: [clear, -h]
+Unknown option: '-h'
+Usage:  clear
+Clear console
+>
 > exit -h
+Executing command: [exit, -h]
 Unknown option: '-h'
 Usage:  exit
 Exit dbunit-tools

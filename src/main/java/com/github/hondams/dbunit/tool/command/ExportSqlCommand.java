@@ -35,20 +35,20 @@ public class ExportSqlCommand implements Callable<Integer> {
         description = "Schema name. If not specified, the default schema is used.")
     String scheme;
 
-    @Option(names = {"-t", "--table"}, required = true, //
-        description = "Table name. Specify only the table name.")
-    String table;
+    @Option(names = {"-ot", "--output-table"}, required = true, //
+        description = "Output Table name. Specify only the table name.")
+    String outputTableName;
 
-    @Option(names = {"-f", "--format"},//
-        description = "File format. " //
+    @Option(names = {"-of", "--output-format"},//
+        description = "Output File format. " //
             + "When outputting as XML or CSV, this option must be specified. "//
             + "If not specified, the format is inferred from the file extension.")
-    DbUnitFileFormat format;
+    DbUnitFileFormat outputFormat;
 
     @Option(names = {"-o", "--output"}, required = true,//
         description = "Output dbunit file path. "//
             + "If the format is CSV, specify a directory.")
-    String output;
+    String outputFile;
 
     @Autowired
     DataSource dataSource;
@@ -56,7 +56,7 @@ public class ExportSqlCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        File outputFile = new File(this.output);
+        File outputFile = new File(this.outputFile);
         File outputDirectory = outputFile.getParentFile();
         if (outputDirectory != null//
             && (!outputDirectory.isDirectory() || !outputDirectory.exists())) {
@@ -71,15 +71,15 @@ public class ExportSqlCommand implements Callable<Integer> {
         try (Connection connection = this.dataSource.getConnection()) {
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                 this.scheme);
-            if (DbUnitUtils.supportsStreamWrite(outputFile, this.format)) {
+            if (DbUnitUtils.supportsStreamWrite(outputFile, this.outputFormat)) {
                 DatabaseConfig databaseConfig = databaseConnection.getConfig();
                 databaseConfig.setProperty(DatabaseConfig.PROPERTY_RESULTSET_TABLE_FACTORY,
                     new ForwardOnlyResultSetTableFactory());
             }
             QueryDataSet inputDataSet = new QueryDataSet(databaseConnection);
-            inputDataSet.addTable(this.table, this.sql);
+            inputDataSet.addTable(this.outputTableName, this.sql);
 
-            DbUnitUtils.save(inputDataSet, outputFile, this.format);
+            DbUnitUtils.save(inputDataSet, outputFile, this.outputFormat);
             ConsolePrinter.println(log, "Exported to " + outputFile.getAbsolutePath());
             return 0;
         } catch (Exception e) {

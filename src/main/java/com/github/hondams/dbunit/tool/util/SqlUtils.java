@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 
 @UtilityClass
 public class SqlUtils {
@@ -26,6 +28,19 @@ public class SqlUtils {
 
     public String getCount(String tableName) {
         return "SELECT COUNT(*) FROM " + tableName;
+    }
+
+    public List<String> splitSqls(String sqlsText) {
+        List<String> sqls = new ArrayList<>();
+        try {
+            for (net.sf.jsqlparser.statement.Statement sqlStatement ://
+                CCJSqlParserUtil.parseStatements(sqlsText)) {
+                sqls.add(sqlStatement.toString());
+            }
+        } catch (JSQLParserException e) {
+            throw new IllegalStateException(e);
+        }
+        return sqls;
     }
 
     private List<ColumnNode> getKeyColumns(List<ColumnNode> columns) {

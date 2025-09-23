@@ -1,10 +1,8 @@
 package com.github.hondams.dbunit.tool.dbunit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
+import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.dbunit.dataset.AbstractDataSet;
@@ -18,13 +16,10 @@ public class DiskSortedDataSet extends AbstractDataSet {
     public static final String METADATA_FILE_NAME = "dbdef.json";
 
     // ディレクトリを指定する。
-    // ディレクトリの下には、テーブル名のディレクトリを作り、ソート済みのFlatXml形式のファイルを格納する。
-    // 読み込むときは、複数ファイルを同時に開き、最小のレコードを返却する。
-    // 主キーがある場合は、主キーでソートしておく。
-    // 主キーがない場合は、全カラムでソートしておく。
     // ディレクトリ直下には、メタデータを構築できる、dbdef.jsonを格納する。
+    // ディレクトリの下には、テーブル名のディレクトリを作り、ファイル名順で、ソート済みのFlatXml形式のファイルを格納する。
 
-    private DiskSortedTable[] tables;
+    private final DiskSortedTable[] tables;
 
     public DiskSortedDataSet(File dir) throws DataSetException {
         List<ITableMetaData> metaDataList = createTableMetaDataList(dir);
@@ -32,14 +27,25 @@ public class DiskSortedDataSet extends AbstractDataSet {
     }
 
     private List<ITableMetaData> createTableMetaDataList(File dir) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            DatabaseNode databaseNode = objectMapper.readValue(//
-                new File(dir, METADATA_FILE_NAME), DatabaseNode.class);
-            return TableMetaDataUtils.createTableMetaDataList(databaseNode);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        List<String> tableNames = getTableNames(dir);
+        TableNamePattern tableNamePattern = TableNamePattern.fromTableNames(tableNames);
+        DatabaseNode databaseNode = DatabaseUtils.loadDatabaseNode(
+            new File(dir, METADATA_FILE_NAME));
+        return new ArrayList<>(
+            TableMetaDataUtils.createTableMetaDataMap(databaseNode, tableNamePattern).values());
+    }
+
+    private List<String> getTableNames(File dir) {
+        List<String> tableNames = new ArrayList<>();
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    tableNames.add(file.getName());
+                }
+            }
         }
+        return tableNames;
     }
 
     private DiskSortedTable[] createDiskSortedTables(File dir, List<ITableMetaData> metaDataList)

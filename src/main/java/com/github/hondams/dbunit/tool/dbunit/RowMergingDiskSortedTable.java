@@ -1,6 +1,5 @@
 package com.github.hondams.dbunit.tool.dbunit;
 
-import com.github.hondams.dbunit.tool.util.FileUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,7 +15,13 @@ import org.dbunit.dataset.NoSuchColumnException;
 import org.dbunit.dataset.RowOutOfBoundsException;
 
 @Slf4j
-public class MergingDiskSortedTable extends AbstractTable {
+public class RowMergingDiskSortedTable extends AbstractTable {
+
+    // テーブル名のディレクトリを作り、ソート済みのFlatXml形式のファイルを格納する。
+    // 読み込むときは、複数ファイルを同時に開き、最小のレコードを返却する。
+    // 主キーがある場合は、主キーでソートしておく。
+    // 主キーがない場合は、全カラムでソートしておく。
+    // pkがない場合、重複レコードを1つだけを保持する。
 
     @Getter
     private final ITableMetaData tableMetaData;
@@ -26,35 +31,20 @@ public class MergingDiskSortedTable extends AbstractTable {
     private final Map<List<Comparable<Object>>, DiskSortedTableReader> readerMap =//
         new TreeMap<>(DiskSortedTableRecordComparator.INSTANCE);
 
-    private final boolean hasPrimaryKey;
-
     private int rowIndex = -1;
     private LinkedHashMap<String, Comparable<Object>> row;
 
-    public MergingDiskSortedTable(ITableMetaData tableMetaData, File tableDirectory)
+    public RowMergingDiskSortedTable(ITableMetaData tableMetaData, List<File> files)
         throws DataSetException {
         this.tableMetaData = tableMetaData;
-        this.hasPrimaryKey = hasPrimaryKey(tableMetaData);
-        this.tableReaders = createTableReaders(tableMetaData, tableDirectory);
-    }
-
-    private boolean hasPrimaryKey(ITableMetaData tableMetaData) throws DataSetException {
-        return (tableMetaData.getPrimaryKeys().length != 0);
+        this.tableReaders = createTableReaders(tableMetaData, files);
     }
 
     private List<DiskSortedTableReader> createTableReaders(ITableMetaData tableMetaData,
-        File tableDirectory) throws DataSetException {
+        List<File> files) throws DataSetException {
         List<DiskSortedTableReader> readers = new ArrayList<>();
-        File[] files = tableDirectory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile()) {
-                    String extension = FileUtils.getFileExtension(file);
-                    if (extension != null && extension.equalsIgnoreCase("xml")) {
-                        readers.add(new DiskSortedTableReader(tableMetaData, file));
-                    }
-                }
-            }
+        for (File file : files) {
+            readers.add(new DiskSortedTableReader(tableMetaData, file));
         }
         return readers;
     }
@@ -72,10 +62,8 @@ public class MergingDiskSortedTable extends AbstractTable {
             }
             this.rowIndex = 0;
             setNextRow();
-        } else {
-            if (this.row == null) {
-                throw new RowOutOfBoundsException();
-            }
+        } else if (this.row == null) {
+            throw new RowOutOfBoundsException();
         }
 
         int diff = row - this.rowIndex;
@@ -125,12 +113,25 @@ public class MergingDiskSortedTable extends AbstractTable {
 
     private void putNextKey(DiskSortedTableReader reader) throws DataSetException {
         while (reader.next()) {
-            List<Comparable<Object>> key = getReaderKey(reader);
+            List<Comparable<Object>> key = reader.getRowValues();
             DiskSortedTableReader duplicatedReader = this.readerMap.get(key);
             if (duplicatedReader != null) {
-                log.warn("Duplicate key: {} files=[{}, {}]", key,//
-                    duplicatedReader.getFile().getAbsolutePath(),//
-                    reader.getFile().getAbsolutePath());
+                int comparison = reader.getFile().getName()
+                    .compareTo(duplicatedReader.getFile().getName());
+                if (0 < comparison) { // duplicatedReader < reader
+                    // readerの方が後なので、readerを優先する。
+                    this.readerMap.put(key, reader);
+                    printDuplicateRow(key);
+                    putNextKey(duplicatedReader);
+                    break;
+                } else if (comparison < 0) {// reader < duplicatedReader
+                    // duplicatedReaderの方が後なので、readerの行をスキップし次の行を評価する。
+                    printDuplicateRow(key);
+                } else {
+                    // 同じファイル名はありえない。
+                    throw new IllegalStateException(
+                        "Same file name: " + reader.getFile().getName());
+                }
             } else {
                 this.readerMap.put(key, reader);
                 break;
@@ -138,13 +139,7 @@ public class MergingDiskSortedTable extends AbstractTable {
         }
     }
 
-    private List<Comparable<Object>> getReaderKey(DiskSortedTableReader reader)
-        throws DataSetException {
-        if (this.hasPrimaryKey) {
-            return reader.getKeyValues();
-        } else {
-            return reader.getRowValues();
-        }
-
+    private void printDuplicateRow(List<Comparable<Object>> row) {
+        log.warn("Duplicate row: skip={}", row);
     }
 }

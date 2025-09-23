@@ -3,6 +3,7 @@ package com.github.hondams.dbunit.tool.command;
 import com.github.hondams.dbunit.tool.dbunit.DatabaseConnectionFactory;
 import com.github.hondams.dbunit.tool.dbunit.DbUnitFileFormat;
 import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
+import com.github.hondams.dbunit.tool.dbunit.TableNamePattern;
 import com.github.hondams.dbunit.tool.model.CatalogNode;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
 import com.github.hondams.dbunit.tool.model.SchemaNode;
@@ -43,20 +44,26 @@ public class ExportEmptyCommand implements Callable<Integer> {
 
     @Option(names = {"-e", "--exclude"}, split = ",",//
         description = "Table names to exclude. "//
-            + "Specify only the table name. "//
+            + "Specify in the same format as Output Table name pattern. "//
             + "Exclusion is applied only when the table name matches case-insensitively.")
-    String[] exclude;
+    String[] excludeTableName;
 
-    @Option(names = {"-f", "--format"},//
-        description = "File format. " //
+    @Option(names = {"-otp", "--output-table-pattern"}, //
+        description = "Output Table name pattern. "
+            + "The available values are CATALOG_SCHEMA_TABLE, SCHEMA_TABLE, and TABLE. "
+            + "If not specified,  TABLE is used.")
+    TableNamePattern outputTableNamePattern = TableNamePattern.TABLE;
+
+    @Option(names = {"-of", "--output-format"},//
+        description = "Output File format. " //
             + "When outputting as XML or CSV, this option must be specified. "//
             + "If not specified, the format is inferred from the file extension.")
-    DbUnitFileFormat format;
+    DbUnitFileFormat outputFormat;
 
     @Option(names = {"-o", "--output"}, required = true,//
         description = "Output dbunit file path. "//
             + "If the format is CSV, specify a directory.")
-    String output;
+    String outputFile;
 
     @Autowired
     DataSource dataSource;
@@ -64,7 +71,7 @@ public class ExportEmptyCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        File outputFile = new File(this.output);
+        File outputFile = new File(this.outputFile);
         File outputDirectory = outputFile.getParentFile();
         if (outputDirectory != null//
             && (!outputDirectory.isDirectory() || !outputDirectory.exists())) {
@@ -95,9 +102,11 @@ public class ExportEmptyCommand implements Callable<Integer> {
                     if (this.scheme == null//
                         || this.scheme.equalsIgnoreCase(schemaNode.getSchemaName())) {
                         for (TableNode tableNode : schemaNode.getTables()) {
-                            if (!isExcluded(tableNode.getTableName())) {
-                                inputDataSet.addTable(tableNode.getTableName(),
-                                    SqlUtils.getEmpty(tableNode.getTableName()));
+                            TableKey tableKey = new TableKey(catalogNode.getCatalogName(),
+                                schemaNode.getSchemaName(), tableNode.getTableName());
+                            String tableName = this.outputTableNamePattern.getTableName(tableKey);
+                            if (!isExcluded(tableName)) {
+                                inputDataSet.addTable(tableName, SqlUtils.getEmpty(tableName));
                             }
                         }
                     }
@@ -105,9 +114,9 @@ public class ExportEmptyCommand implements Callable<Integer> {
             }
 
             // レコードなしの場合、FlatXmlだと、列情報が出力されないので、標準ではXmlで出力する。
-            DbUnitFileFormat dbUnitFileFormat = this.format;
+            DbUnitFileFormat dbUnitFileFormat = this.outputFormat;
             String extension = FileUtils.getFileExtension(outputFile);
-            if ("xml".equalsIgnoreCase(extension) && this.format == null) {
+            if ("xml".equalsIgnoreCase(extension) && this.outputFormat == null) {
                 dbUnitFileFormat = DbUnitFileFormat.XML;
             }
             DbUnitUtils.save(inputDataSet, outputFile, dbUnitFileFormat);
@@ -120,8 +129,8 @@ public class ExportEmptyCommand implements Callable<Integer> {
     }
 
     private boolean isExcluded(String tableName) {
-        if (this.exclude != null) {
-            for (String ex : this.exclude) {
+        if (this.excludeTableName != null) {
+            for (String ex : this.excludeTableName) {
                 if (ex.equalsIgnoreCase(tableName)) {
                     return true;
                 }

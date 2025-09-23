@@ -9,15 +9,15 @@ export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.xls
 
 export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.xlsx
 
-export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_xml.xml -f=XML
+export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_xml.xml -of=XML
 
-export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_flatxml.xml -f=FLAT_XML
+export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_flatxml.xml -of=FLAT_XML
 
 export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.yaml
 
 export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all.yml
 
-export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_csv -f=CSV
+export empty -t=DBUNIT_TOOLS_% -o=command/test/data/export_empty_all_csv -of=CSV
 
 export table -t=DBUNIT_TOOLS_% -e=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_table.xml
 
@@ -27,27 +27,27 @@ export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.xls
 
 export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.xlsx
 
-export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all_xml.xml -f=XML
+export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all_xml.xml -of=XML
 
 export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.yaml
 
 export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all.yml
 
-export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all_csv -f=CSV
+export table -t=DBUNIT_TOOLS_% -o=command/test/data/export_table_all_csv -of=CSV
 
-export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xml
+export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xml
 
-export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xls
+export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xls
 
-export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xlsx
+export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.xlsx
 
-export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql_xml.xml -f=XML
+export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql_xml.xml -of=XML
 
-export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.yaml
+export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.yaml
 
-export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.yml
+export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql.yml
 
-export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -t=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql_csv -f=CSV
+export sql "SELECT * FROM DBUNIT_TOOLS_PRODUCTS WHERE id=1" -s=PUBLIC -ot=DBUNIT_TOOLS_PRODUCTS -o=command/test/data/export_sql_csv -of=CSV
 
 
 import -s=PUBLIC -i=command/test/data/export_empty.xml

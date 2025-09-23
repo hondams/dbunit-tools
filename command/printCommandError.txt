@@ -3,21 +3,21 @@
 
 batch -f=command/test/notFoundFile.txt
 
-export table -t=NOT_FOUND_TABLE -o=command/test/notDirectory/data.xml
+dbdef column -t=NOT_FOUND_TABLE
+
+dbdef export  -t=dummy -o=command/test/notDirectory/dbdef.json
+
+export table -t=dummy -o=command/test/notDirectory/data.xml
 
 export table -t=NOT_FOUND_TABLE -o=command/test/data.xml
 
-export sql "SELECT * FROM DUAL"  -t=dummy -o=command/test/notDirectory/data.xml
+export sql "SELECT * FROM DUAL"  -ot=dummy -o=command/test/notDirectory/data.xml
 
-export empty -t=NOT_FOUND_TABLE -o=command/test/notDirectory/data.xml
+export empty -t=dummy -o=command/test/notDirectory/data.xml
 
 export empty -t=NOT_FOUND_TABLE -o=command/test/data.xml
 
 import -i=notFoundFile.txt
-
-dbdef column -t=NOT_FOUND_TABLE
-
-dbdef export  -t=NOT_FOUND_TABLE -o=command/test/notDirectory/dbdef.json
 
 diff dbdef -f1=command/test/notFoundFile.txt -f2=command/test/foundFile.txt
 

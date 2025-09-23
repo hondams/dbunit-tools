@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.operation.ChunkInsertOperation;
-import org.dbunit.operation.CompositeOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -32,7 +31,11 @@ public class ImportCommand implements Callable<Integer> {
 
     @Option(names = {"-i", "--input"}, required = true,//
         description = "Input dbunit file path")
-    String input;
+    String inputFile;
+
+    @Option(names = {"-d", "--delete"},//
+        description = "If specified, the existing data in the table will be deleted before inserting. (default: true)")
+    boolean delete = true;
 
     @Option(names = {"-c", "--chunk"},//
         description = "Number of rows per batch when inserting. If not specified or less than 1, all rows are inserted at once.")
@@ -44,7 +47,7 @@ public class ImportCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        File inputFile = new File(this.input);
+        File inputFile = new File(this.inputFile);
         if (!inputFile.exists()) {
             ConsolePrinter.println(log, "File1 not found: " + inputFile.getAbsolutePath());
             return 1;
@@ -56,13 +59,20 @@ public class ImportCommand implements Callable<Integer> {
             DatabaseConnection databaseConnection = DatabaseConnectionFactory.create(connection,
                 this.scheme);
             if (this.chunk <= 0) {
-                DatabaseOperation.CLEAN_INSERT.execute(databaseConnection, inputDataSet);
+                if (this.delete) {
+                    DatabaseOperation.CLEAN_INSERT.execute(databaseConnection, inputDataSet);
+                } else {
+                    DatabaseOperation.INSERT.execute(databaseConnection, inputDataSet);
+                }
             } else {
                 boolean oldAutoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
                 try {
-                    DatabaseOperation importOperation = new CompositeOperation(
-                        DatabaseOperation.TRUNCATE_TABLE, new ChunkInsertOperation(this.chunk));
+                    if (this.delete) {
+                        DatabaseOperation.TRUNCATE_TABLE.execute(databaseConnection, inputDataSet);
+                        connection.commit();
+                    }
+                    DatabaseOperation importOperation = new ChunkInsertOperation(this.chunk);
                     importOperation.execute(databaseConnection, inputDataSet);
                     connection.commit();
                 } catch (Exception e) {
