@@ -22,14 +22,15 @@ public class ConsoleUtils {
 
     public int getDisplaySize(String text) {
         int displaySize = 0;
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (CharUtils.isAscii(c) || CharUtils.isHalfWidthKatakana(c)) {
+        for (int i = 0; i < text.length(); ) {
+            int codePoint = text.codePointAt(i);
+            if (CharUtils.isAscii(codePoint) || CharUtils.isHalfWidthKatakana(codePoint)) {
                 // cはASCII文字です
                 displaySize++;
             } else {
                 displaySize += 2;
             }
+            i += Character.charCount(codePoint);
         }
         return displaySize;
     }

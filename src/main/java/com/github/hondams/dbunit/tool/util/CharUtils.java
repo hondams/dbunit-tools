@@ -5,19 +5,19 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CharUtils {
 
-    public boolean isAscii(char ch) {
-        return ch <= 0x7F;
+    public boolean isAscii(int codePoint) {
+        return codePoint <= 0x7F;
     }
 
-    public boolean isAsciiPrintable(char ch) {
-        return ch >= 0x20 && ch <= 0x7E;
+    public boolean isAsciiPrintable(int codePoint) {
+        return 0x20 <= codePoint && codePoint <= 0x7E;
     }
 
-    public boolean isAsciiControl(char ch) {
-        return ch <= 0x1F || ch == 0x7F;
+    public boolean isAsciiControl(int codePoint) {
+        return codePoint <= 0x1F || codePoint == 0x7F;
     }
 
-    public boolean isHalfWidthKatakana(char ch) {
-        return '\uFF61' <= ch && ch <= '\uFF9F'; // Half-width Katakana range
+    public boolean isHalfWidthKatakana(int codePoint) {
+        return '\uFF61' <= codePoint && codePoint <= '\uFF9F'; // Half-width Katakana range
     }
 }
