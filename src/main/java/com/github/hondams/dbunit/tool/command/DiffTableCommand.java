@@ -21,15 +21,17 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "table", description = "Compare two database definition files")
+@Command(name = "table", description = "Compare table between two DbUnit files")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
-public class DiffDataCommand implements Callable<Integer> {
+public class DiffTableCommand implements Callable<Integer> {
 
     private static final List<String> TABLE_DIFF_HEADER = List.of(//
         "Table",//
-        "Status");//Same,Different,Only in file1,Only in file2
+        "Status",//Same,Different,Only in file1,Only in file2
+        "Count1",//
+        "Count2");//
     private static final List<String> RECORD_DIFF_HEADER = List.of(//
         "Key",//
         "Status");//Same,Different,Only in file1,Only in file2

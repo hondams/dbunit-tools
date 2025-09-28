@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dbunit.dataset.Column;
 import org.dbunit.dataset.Column.AutoIncrement;
 import org.dbunit.dataset.Column.Nullable;
+import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.DefaultTableMetaData;
 import org.dbunit.dataset.ITableMetaData;
 import org.dbunit.dataset.datatype.DataType;
@@ -23,6 +24,116 @@ import org.dbunit.dataset.datatype.DataTypeException;
 
 @UtilityClass
 public class TableMetaDataUtils {
+
+    public Map.Entry<TableKey, ITableMetaData> selectTableMetaData(
+        Map<TableKey, ITableMetaData> tableMetaDataMap, ITableMetaData searchingTableMetaData)
+        throws DataSetException {
+
+        TableKey searchingTableKey = TableKey.fromQualifiedTableName(
+            searchingTableMetaData.getTableName());
+        ITableMetaData writingMetaData = tableMetaDataMap.get(searchingTableKey);
+        if (writingMetaData != null) {
+            return Map.entry(searchingTableKey, writingMetaData);
+        } else {
+            Map<TableKey, ITableMetaData> foundMetaDataMap = new LinkedHashMap<>();
+            for (Map.Entry<TableKey, ITableMetaData> entry : tableMetaDataMap.entrySet()) {
+                TableKey tableKey = entry.getKey();
+                if (matchesTableName(tableKey, searchingTableKey)) {
+                    foundMetaDataMap.put(tableKey, entry.getValue());
+                }
+            }
+            if (foundMetaDataMap.size() == 1) {
+                for (Map.Entry<TableKey, ITableMetaData> entry : foundMetaDataMap.entrySet()) {
+                    return entry;
+                }
+            }
+            for (Map.Entry<TableKey, ITableMetaData> entry : foundMetaDataMap.entrySet()) {
+                if (equalsAllColumnNames(entry.getValue().getColumns(),
+                    searchingTableMetaData.getColumns())) {
+                    return entry;
+                }
+            }
+            for (Map.Entry<TableKey, ITableMetaData> entry : foundMetaDataMap.entrySet()) {
+                if (includesAllColumnNames(entry.getValue().getColumns(),
+                    searchingTableMetaData.getColumns())) {
+                    return entry;
+                }
+            }
+            throw new IllegalStateException(
+                "Multiple TableMetaData found: " + searchingTableMetaData.getTableName() + " -> "
+                    + foundMetaDataMap.keySet());
+        }
+    }
+
+
+    private boolean matchesTableName(TableKey tableKey, TableKey searchingTableKey) {
+        return (searchingTableKey.getCatalogName() == null//
+            || searchingTableKey.getCatalogName().equals(tableKey.getCatalogName()))//
+            && (searchingTableKey.getSchemaName() == null//
+            || searchingTableKey.getSchemaName().equals(tableKey.getSchemaName()))
+            && (searchingTableKey.getTableName().equals(tableKey.getTableName()));
+    }
+
+    private boolean equalsAllColumnNames(Column[] columns1, Column[] columns2) {
+        if (columns1.length != columns2.length) {
+            return false;
+        }
+        for (int i = 0; i < columns1.length; i++) {
+            Column column1 = columns1[i];
+            Column column2 = columns2[i];
+            if (!column1.getColumnName().equalsIgnoreCase(column2.getColumnName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean includesAllColumnNames(Column[] databaseColumns, Column[] dataColumns) {
+        if (databaseColumns.length < dataColumns.length) {
+            return false;
+        }
+        for (Column column : dataColumns) {
+            Column found = findColumnByName(databaseColumns, column.getColumnName());
+            if (found == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    public Column[] selectColumns(ITableMetaData tableMetaData, List<String> columnNames)
+        throws DataSetException {
+        Column[] columns = tableMetaData.getColumns();
+        Column[] filteredColumns = new Column[columns.length];
+        for (int i = 0; i < columns.length; i++) {
+            Column column = columns[i];
+            if (containsColumnName(columnNames, column.getColumnName())) {
+                filteredColumns[i] = column;
+            }
+        }
+        return filteredColumns;
+    }
+
+    private boolean containsColumnName(List<String> columnNames, String searchingColumnName) {
+        for (String columnName : columnNames) {
+            if (columnName.equalsIgnoreCase(searchingColumnName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private Column findColumnByName(Column[] columns, String columnName) {
+        for (Column column : columns) {
+            if (column.getColumnName().equalsIgnoreCase(columnName)) {
+                return column;
+            }
+        }
+        return null;
+    }
+
 
     public Map<TableKey, ITableMetaData> createTableMetaDataMap(DatabaseNode databaseNode,
         TableNamePattern tableNamePattern) {

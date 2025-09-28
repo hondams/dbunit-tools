@@ -24,9 +24,14 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.database.DatabaseConnection;
+import org.dbunit.dataset.Column;
 import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ITableIterator;
+import org.dbunit.dataset.ITableMetaData;
+import org.dbunit.dataset.RowOutOfBoundsException;
 import org.dbunit.dataset.csv.CsvDataSet;
 import org.dbunit.dataset.csv.CsvDataSetWriter;
 import org.dbunit.dataset.csv.CsvProducer;
@@ -91,6 +96,47 @@ public class DbUnitUtils {
         }
     }
 
+    public ITable getTable(IDataSet dataSet, String tableName) throws DataSetException {
+        ITableIterator iterator = dataSet.iterator();
+        while (iterator.next()) {
+            ITable t = iterator.getTable();
+            if (t.getTableMetaData().getTableName().equals(tableName)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+
+    public Object[] getRowValues(ITableMetaData tableMetaData, ITable table, int rowIndex)
+        throws DataSetException {
+        return getRowValues(tableMetaData.getColumns(), table, rowIndex);
+    }
+
+
+    public Object[] getRowValues(Column[] columns, ITable table, int rowIndex)
+        throws DataSetException {
+        try {
+            Object[] rowValues = new Object[columns.length];
+            for (int columnIndex = 0; columnIndex < columns.length; columnIndex++) {
+                Column column = columns[columnIndex];
+                if (column != null) {
+                    Object value = table.getValue(rowIndex, column.getColumnName());
+                    value = column.getDataType().typeCast(value);
+                    if (value != null && !(value instanceof Comparable)) {
+                        throw new IllegalStateException(
+                            "Value is not Comparable: table=" + table.getTableMetaData()
+                                .getTableName() + ", row=" + rowIndex + ", column="
+                                + column.getColumnName() + ", value=" + value);
+                    }
+                    rowValues[columnIndex] = value;
+                }
+            }
+            return rowValues;
+        } catch (RowOutOfBoundsException e) {
+            return null;
+        }
+    }
     public IDataSet load(File file) {
         String extension = FileUtils.getFileExtension(file);
         if ("xml".equalsIgnoreCase(extension)) {

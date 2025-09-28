@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PrintLineUtils {
 
-
     public List<String> getTableLines(String prefix, List<String> headers,
         List<PrintLineAlignment> alignments, List<List<String>> rows) {
         if (headers.isEmpty()) {

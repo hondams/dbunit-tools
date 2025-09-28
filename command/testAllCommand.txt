@@ -11,6 +11,8 @@ sql query -f=command/test/sql/query.sql
 
 sql query "SELECT * FROM dbunit_tools_users"
 
+sql query -a "SELECT * FROM dbunit_tools_users"
+
 
 batch -f=command/tesDbdef.txt
 

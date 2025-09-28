@@ -18,6 +18,8 @@
         <picocli.version>4.7.7</picocli.version>
         <dbunit.version>2.8.0</dbunit.version>
         <commons-exec.version>1.5.0</commons-exec.version>
+        <commons-codec.version>1.19.0</commons-codec.version>
+        <commons-text.version>1.14.0</commons-text.version>
         <poi.version>5.4.1</poi.version>
         <ojdbc8.version>23.9.0.25.07</ojdbc8.version>
         <jsqlparser.version>5.3</jsqlparser.version>
@@ -49,6 +51,16 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-exec</artifactId>
             <version>${commons-exec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

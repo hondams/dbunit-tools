@@ -34,10 +34,10 @@ public class DiffDbDefCommand implements Callable<Integer> {
 
     private static final List<String> TABLE_DIFF_HEADER = List.of(//
         "Table",//
-        "Status");
+        "Status");//Same,Different,Only in file1,Only in file2
     private static final List<String> COLUMN_DIFF_HEADER = List.of(//
         "Column",//
-        "Status",//
+        "Status",//Same,Different,Only in file1,Only in file2
         "Property",//
         "Value1",//
         "Value2");

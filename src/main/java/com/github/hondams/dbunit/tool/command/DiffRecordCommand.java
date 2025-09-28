@@ -1,19 +1,24 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.hondams.dbunit.tool.model.CatalogNode;
+import com.github.hondams.dbunit.tool.dbunit.DbUnitUtils;
+import com.github.hondams.dbunit.tool.dbunit.TableMetaDataUtils;
+import com.github.hondams.dbunit.tool.dbunit.TableNamePattern;
 import com.github.hondams.dbunit.tool.model.DatabaseNode;
-import com.github.hondams.dbunit.tool.model.SchemaNode;
 import com.github.hondams.dbunit.tool.model.TableKey;
-import com.github.hondams.dbunit.tool.model.TableNode;
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import com.github.hondams.dbunit.tool.util.DatabaseUtils;
 import com.github.hondams.dbunit.tool.util.PrintLineAlignment;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
+import org.dbunit.dataset.DataSetException;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ITableMetaData;
+import org.dbunit.dataset.NoSuchTableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -21,33 +26,17 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "table", description = "Compare two database definition files")
+@Command(name = "record", description = "Compare table record between two DbUnit files")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
-public class DiffDataCommand implements Callable<Integer> {
+public class DiffRecordCommand implements Callable<Integer> {
 
-    private static final List<String> TABLE_DIFF_HEADER = List.of(//
-        "Table",//
-        "Status");//Same,Different,Only in file1,Only in file2
     private static final List<String> RECORD_DIFF_HEADER = List.of(//
         "Key",//
         "Status");//Same,Different,Only in file1,Only in file2
-    private static final List<String> COLUMN_DIFF_HEADER = List.of(//
-        "Column",//
-        "Status",//Same,Different,Only in file1,Only in file2
-        "Property",//
-        "Value1",//
-        "Value2");
 
-    private static final List<PrintLineAlignment> TABLE_DIFF_ALIGNMENTS = List.of(//
-        PrintLineAlignment.LEFT,//
-        PrintLineAlignment.LEFT);
-
-    private static final List<PrintLineAlignment> COLUMN_DIFF_ALIGNMENTS = List.of(//
-        PrintLineAlignment.LEFT,//
-        PrintLineAlignment.LEFT,//
-        PrintLineAlignment.LEFT,//
+    private static final List<PrintLineAlignment> RECORD_DIFF_ALIGNMENTS = List.of(//
         PrintLineAlignment.LEFT,//
         PrintLineAlignment.LEFT);
 
@@ -60,6 +49,9 @@ public class DiffDataCommand implements Callable<Integer> {
     @Option(names = {"-f2", "--file2"}, required = true,//
         description = "DbUnit file 2. Specify a file exported by export command.")
     String file2;
+    @Option(names = {"-t", "--table"}, required = true, //
+        description = "Comparing Table name. Specify only the table name.")
+    String tableName;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -85,36 +77,35 @@ public class DiffDataCommand implements Callable<Integer> {
         }
 
         try {
-            DatabaseNode databaseNode = this.objectMapper.readValue(inputDbDefFile,
-                DatabaseNode.class);
-
-            Map<TableKey, TableNode[]> tableMap = new TreeMap<>(TableKey.COMPARATOR);
-            for (CatalogNode catalogNode : databaseNode.getCatalogs()) {
-                for (SchemaNode schemaNode : catalogNode.getSchemas()) {
-                    for (TableNode tableNode : schemaNode.getTables()) {
-                        TableKey tableKey = new TableKey(catalogNode.getCatalogName(),
-                            schemaNode.getSchemaName(), tableNode.getTableName());
-                        TableNode[] nodes = new TableNode[2];
-                        nodes[0] = tableNode;
-                        tableMap.put(tableKey, nodes);
-                    }
-                }
+            ITable table1 = getTable(inputFile1);
+            ITable table2 = getTable(inputFile2);
+            ITableMetaData tableMetaData = getTableMetaData(inputDbDefFile,
+                List.of(table1.getTableMetaData(), table2.getTableMetaData()));
+            int index1 = 0;
+            int index2 = 0;
+            Object[] lastRowValues1 = null;
+            Object[] lastRowValues2 = null;
+            Object[] rowValues1 = DbUnitUtils.getRowValues(tableMetaData, table1, index1);
+            Object[] rowValues2 = DbUnitUtils.getRowValues(tableMetaData, table2, index2);
+            while (rowValues1 != null && rowValues2 != null) {
+                //                int cmp = DbUnitUtils.compareRowValues(tableMetaData, rowValues1, rowValues2);
+                //                if (cmp == 0) {
+                //                    // Same
+                //                    index1++;
+                //                    index2++;
+                //                    rowValues1 = DbUnitUtils.getRowValues(tableMetaData, table1, index1);
+                //                    rowValues2 = DbUnitUtils.getRowValues(tableMetaData, table2, index2);
+                //                } else if (cmp < 0) {
+                //                    // Only in file1
+                //                    index1++;
+                //                    rowValues1 = DbUnitUtils.getRowValues(tableMetaData, table1, index1);
+                //                } else {
+                //                    // Only in file2
+                //                    index2++;
+                //                    rowValues2 = DbUnitUtils.getRowValues(tableMetaData, table2, index2);
+                //                }
+                //
             }
-            //            for (CatalogNode catalogNode : databaseNode2.getCatalogs()) {
-            //                for (SchemaNode schemaNode : catalogNode.getSchemas()) {
-            //                    for (TableNode tableNode : schemaNode.getTables()) {
-            //                        TableKey tableKey = new TableKey(catalogNode.getCatalogName(),
-            //                            schemaNode.getSchemaName(), tableNode.getTableName());
-            //                        TableNode[] nodes = tableMap.computeIfAbsent(tableKey,
-            //                            k -> new TableNode[2]);
-            //                        nodes[1] = tableNode;
-            //                    }
-            //                }
-            //            }
-            //
-            //            printTableDiff(tableMap);
-            //
-            //            printColumnDiff(tableMap);
 
             return 0;
         } catch (Exception e) {
@@ -243,4 +234,42 @@ public class DiffDataCommand implements Callable<Integer> {
     //            ConsolePrinter.println(log, "");
     //        }
     //    }
+
+
+    private ITable getTable(File file) throws DataSetException {
+        IDataSet dataSet = DbUnitUtils.loadStreaming(file);
+        ITable table = DbUnitUtils.getTable(dataSet, this.tableName);
+        if (table == null) {
+            throw new NoSuchTableException(
+                "Table not found: " + this.tableName + " in " + file.getAbsolutePath());
+        }
+        return table;
+    }
+
+    private ITableMetaData getTableMetaData(File dbDefFile, List<ITableMetaData> tableMetaDataList)
+        throws DataSetException {
+        DatabaseNode databaseNode = DatabaseUtils.loadDatabaseNode(dbDefFile);
+        TableNamePattern tableNamePattern = TableNamePattern.fromTableName(this.tableName);
+        Map<TableKey, ITableMetaData> tableMetaDataMap = TableMetaDataUtils.createTableMetaDataMap(
+            databaseNode, tableNamePattern);
+        Map.Entry<TableKey, ITableMetaData> entry = TableMetaDataUtils.selectTableMetaData(
+            tableMetaDataMap, getSearchingTableMetaData(tableMetaDataList));
+        return entry.getValue();
+    }
+
+    private ITableMetaData getSearchingTableMetaData(List<ITableMetaData> tableMetaDataList)
+        throws DataSetException {
+
+        ITableMetaData foundTableMetaData = null;
+        for (ITableMetaData tableMetaData : tableMetaDataList) {
+            if (foundTableMetaData == null) {
+                foundTableMetaData = tableMetaData;
+            } else {
+                if (foundTableMetaData.getColumns().length < tableMetaData.getColumns().length) {
+                    foundTableMetaData = tableMetaData;
+                }
+            }
+        }
+        return foundTableMetaData;
+    }
 }

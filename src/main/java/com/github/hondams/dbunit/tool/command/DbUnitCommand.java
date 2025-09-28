@@ -1,6 +1,7 @@
 package com.github.hondams.dbunit.tool.command;
 
 import com.github.hondams.dbunit.tool.util.ConsolePrinter;
+import com.github.hondams.dbunit.tool.util.ConsoleUtils;
 import com.github.hondams.dbunit.tool.util.PicoUtils;
 import java.util.List;
 import java.util.Scanner;
@@ -44,8 +45,7 @@ public class DbUnitCommand implements Callable<Integer> {
                 ConversationCommand.class);
             CommandLine commandLine = new CommandLine(conversationCommand, this.factory);
             boolean exit = false;
-            // TODO:System.inのエンコーディングを取得する方法がわからないため、Windows-31Jを指定
-            try (Scanner scanner = new Scanner(System.in, "Windows-31J")) {
+            try (Scanner scanner = new Scanner(System.in, ConsoleUtils.getCharset())) {
                 while (!exit) {
                     ConsolePrinter.printPrompt();
                     String line = scanner.nextLine();

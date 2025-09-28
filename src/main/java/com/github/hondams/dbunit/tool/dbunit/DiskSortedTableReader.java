@@ -32,14 +32,11 @@ public class DiskSortedTableReader {
 
     private ITable getTable(ITableMetaData metaData, File file) throws DataSetException {
         IDataSet dataSet = DbUnitUtils.loadStreamingFlatXml(file);
-        ITableIterator iterator = dataSet.iterator();
-        while (iterator.next()) {
-            ITable t = iterator.getTable();
-            if (t.getTableMetaData().getTableName().equals(metaData.getTableName())) {
-                return t;
-            }
+        ITable table = DbUnitUtils.getTable(dataSet, metaData.getTableName());
+        if (table == null) {
+            throw new NoSuchTableException("Table not found: " + metaData.getTableName());
         }
-        throw new NoSuchTableException("Table not found: " + metaData.getTableName());
+        return table;
     }
 
     @SuppressWarnings("unchecked")
